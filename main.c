@@ -1,6 +1,7 @@
 #include "./include/glad/glad.h"
 #include "./include/GLFW/glfw3.h"
 #include "./include/utility/utils.h"
+#include "./include/utility/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,10 +21,10 @@ int getShaderLinkingStatus(unsigned int shaderId) {
     return status;
 }
 
-char* getShaderData(const char* path) {
-    char* shader_data = calloc(sizeof(char), 1);
-    return shader_data;
-}
+// char* getShaderData(const char* path) {
+//     char* shader_data = calloc(sizeof(char), 1);
+//     return shader_data;
+// }
 
 // settings
 #define SCR_WIDTH 800
@@ -43,6 +44,15 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "}\n\0";
 
 int main() {
+    const char path[] = "./include/shaders/vertex.hlsl";
+    char* vertexShaderData = readFile(path);
+    
+    if (vertexShaderData == NULL) {
+        return -1;
+    }
+
+    printf("DEBUG: vertex shader data:\n%s\n", vertexShaderData);
+
     glfwInit();
 
     // Create the window
