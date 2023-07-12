@@ -35,6 +35,8 @@ int main() {
 
     render(window, shaderProgram, VAO);
 
+    printf("DEBUG: terminating the program...\n");
+
     terminate(shaderProgram, VAO, VBO);
 
     return 0;
