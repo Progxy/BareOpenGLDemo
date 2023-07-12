@@ -1,12 +1,6 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
-//#ifdef _PARSER_IMPLEMENTATION_
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 char* readFile(const char* file_path) {
     FILE* file = fopen(file_path, "r");
 
@@ -28,6 +22,8 @@ char* readFile(const char* file_path) {
         data = realloc(data, len + 1);
     }
 
+    data[len] = 0;
+
     // Clean the flags
     clearerr(file);
 
@@ -39,11 +35,10 @@ char* readFile(const char* file_path) {
         return NULL;
     }
 
+    // Close file
+    fclose(file);
+
     return data;
 }
-
-//#endif
-
-char* readFile(const char* file_path);
 
 #endif // _PARSER_H_
