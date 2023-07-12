@@ -12,7 +12,9 @@
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, TRUE);
+        printf("INPUT:KEY_PRESS_ESCAPE: closing the window...\n");
     }
+    return;
 }
 
 #endif //_INPUT_H_

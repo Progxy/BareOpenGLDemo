@@ -17,15 +17,21 @@ int main() {
         return -1;
     }
 
+    printf("DEBUG: Loaded window\n");
+
     // Init the shaders and check the status of the operation
     unsigned int shaderProgram;
-    if ((shaderProgram = initShaders("./include/shaders/vertex.hlsl", "./include/shaders/fragment.hlsl")) != INT32_MAX) {
+    if ((shaderProgram = initShaders((const char*) "./include/shaders/vertex.hlsl", (const char*) "./include/shaders/fragment.hlsl")) == INT32_MAX) {
         return -1;
     }
+
+    printf("DEBUG: Loaded shader program\n");
 
     // Load vertex
     unsigned int VBO, VAO;
     loadVertex(&VAO, &VBO);
+
+    printf("DEBUG: Rendering...\n");        
 
     render(window, shaderProgram, VAO);
 
