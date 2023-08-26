@@ -222,11 +222,13 @@ void scalar_product(Matrix mat, float scalar) {
 }
 
 Matrix* scale_matrix(Vector scaling_vec) {
-    Matrix* mat = create_identity_matrix(scaling_vec.rows);
-    Matrix* scaling_matrix = dot_product_matrix(*mat, scaling_vec);
-    deallocate_matrix(mat);
+    Matrix* scaling_mat = create_identity_matrix(scaling_vec.rows);
 
-    return scaling_matrix;
+    for (int i = 0; i < scaling_vec.rows; ++i) {
+        MAT_INDEX(*scaling_mat, i, i) = VEC_INDEX(scaling_vec, i);
+    }
+
+    return scaling_mat;
 }
 
 Matrix* translate_matrix(Vector translation_vec) {

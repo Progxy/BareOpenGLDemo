@@ -62,12 +62,14 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // create transformations
-        Matrix* rotation_y_mat = rotation_y_matrix(90.0f, 4);
+        Vector* vec = vec4(1.5f, 1.5f, 1.5f, 1.0f);
+        Matrix* scale_mat = scale_matrix(*vec);
+        deallocate_matrix(vec);
 
         // get matrix's uniform location and set matrix
+        print_matrix(*scale_mat, "Transformation Matrix");
         unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        print_matrix(*rotation_y_mat, "Transformation Matrix");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, rotation_y_mat -> data);
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, scale_mat -> data);
         
 
         // Use the shaders
@@ -80,7 +82,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glfwPollEvents();
         
         // Remove the used transformation matrix
-        deallocate_matrix(rotation_y_mat);
+        deallocate_matrix(scale_mat);
 
     }
     return;
