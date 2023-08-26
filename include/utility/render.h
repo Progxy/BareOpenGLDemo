@@ -62,12 +62,11 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // create transformations
-        Vector* vec = vec4(1.5f, 1.5f, 1.5f, 1.0f);
+        Vector* vec = vec4(1.25f, 1.25f, 1.25f, 1.0f);
         Matrix* scale_mat = scale_matrix(*vec);
         deallocate_matrix(vec);
 
         // get matrix's uniform location and set matrix
-        print_matrix(*scale_mat, "Transformation Matrix");
         unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, scale_mat -> data);
         
