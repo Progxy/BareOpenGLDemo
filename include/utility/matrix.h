@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -18,6 +19,7 @@
 #define DEGREE_TO_RADIANS(angle) ((angle) * (PI / 180))
 #define cosfr(rad) (remove_neg_sign(cosf(rad)))
 #define sinfr(rad) (remove_neg_sign(sinf(rad)))
+#define tanfr(rad) (remove_neg_sign(tanf(rad)))
 
 typedef struct Matrix {
     int rows;
@@ -27,18 +29,6 @@ typedef struct Matrix {
 } Matrix;
 
 typedef Matrix Vector;
-
-void print_float_bits(float* val) {
-    unsigned char* val_uc = (unsigned char*) val;
-    for (int j = 0; j < 4; ++j) {    
-        for (int i = 0; i < 8; i++) {
-            printf("%d", ((*(val_uc + j)) & (1 << i)) ? 1 : 0);
-        }
-        printf(" ");
-    }
-    printf("\n");
-    return;
-}
 
 float remove_neg_sign(float val) {
     return (val == (-(0.0f))) ? 0.0f : val;
@@ -219,6 +209,24 @@ void scalar_product(Matrix mat, float scalar) {
     }
 
     return;
+}
+
+Vector* init_vec(int a, ...) {
+    Vector* vec = alloc_vector(1.0f, a);
+    va_list args;
+
+    // Set the length of the args pointer
+    va_start(args, a);
+
+    // Init the vector
+    for (int i = 0; i < a; ++i) {
+        VEC_INDEX(*vec, i) = va_arg(args, float);
+    }
+
+    // End the holding of the args from the stack pointer
+    va_end(args);
+
+    return vec; 
 }
 
 Vector* vec3(float a, float b, float c) {
