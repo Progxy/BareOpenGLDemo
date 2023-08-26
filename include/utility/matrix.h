@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
-#include <stdarg.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -209,24 +208,6 @@ void scalar_product(Matrix mat, float scalar) {
     }
 
     return;
-}
-
-Vector* init_vec(int a, ...) {
-    Vector* vec = alloc_vector(1.0f, a);
-    va_list args;
-
-    // Set the length of the args pointer
-    va_start(args, a);
-
-    // Init the vector
-    for (int i = 0; i < a; ++i) {
-        VEC_INDEX(*vec, i) = va_arg(args, float);
-    }
-
-    // End the holding of the args from the stack pointer
-    va_end(args);
-
-    return vec; 
 }
 
 Vector* vec3(float a, float b, float c) {
