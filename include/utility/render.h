@@ -61,17 +61,24 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Use the shaders
+        glUseProgram(shaderProgram);
+
         // Create the model matrix
         Matrix* model = rotation_x_matrix(-55.0f, 4); 
         
         // Create the view matrix
-        Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 0.0f);
-        Matrix* view = translate_matrix(*translation_vec); 
+        Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 1.0f);
+        Matrix* view = translate_matrix(*translation_vec);
+        deallocate_matrix(translation_vec); 
 
         // Create the projection matrix
-        Matrix* projection = perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+        Matrix* projection = perspective_matrix(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Send the matrices to the shader
+        print_matrix(*model, "Model Matrix");
+        print_matrix(*view, "View Matrix");
+        print_matrix(*projection, "Projection Matrix");
         unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model -> data);
         
@@ -81,8 +88,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection -> data);
 
-        // Use the shaders
-        glUseProgram(shaderProgram);
+        // Render container
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
