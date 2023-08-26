@@ -16,6 +16,8 @@
 #define scalar_negation(mat) (scalar_product((mat), -1))
 #define RADIANS_TO_DEGREE(angle) ((angle) * (180 / PI))
 #define DEGREE_TO_RADIANS(angle) ((angle) * (PI / 180))
+#define cosfr(rad) (remove_neg_sign(cosf(rad)))
+#define sinfr(rad) (remove_neg_sign(sinf(rad)))
 
 typedef struct Matrix {
     int rows;
@@ -25,6 +27,22 @@ typedef struct Matrix {
 } Matrix;
 
 typedef Matrix Vector;
+
+void print_bits(float* val) {
+    unsigned char* val_uc = (unsigned char*) val;
+    for (int j = 0; j < 4; ++j) {    
+        for (int i = 0; i < 8; i++) {
+            printf("%d", ((*(val_uc + j)) & (1 << i)) ? 1 : 0);
+        }
+        printf(" ");
+    }
+    printf("\n");
+    return;
+}
+
+float remove_neg_sign(float val) {
+    return (val == (-(0.0f))) ? 0.0f : val;
+}
 
 void print_matrix(Matrix mat, const char* mat_name) {
     printf("\n-------------------------------------\n");
@@ -140,6 +158,7 @@ Matrix* dot_product_matrix(Matrix a, Matrix b) {
         print_matrix(a, "a");
         print_matrix(b, "b");
     }
+
     assert(a.cols == b.rows);
 
     // Allocate the result matrix
@@ -222,30 +241,30 @@ Matrix* translate_matrix(Vector translation_vec) {
 
 Matrix* rotation_x_matrix(float angle, int size) {
     Matrix* rotation_x_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_x_mat, 1, 1) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_x_mat, 1, 2) = - RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_x_mat, 2, 1) = RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_x_mat, 2, 2) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_x_mat, 1, 1) = cosfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_x_mat, 1, 2) = remove_neg_sign(-sinfr(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_x_mat, 2, 1) = sinfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_x_mat, 2, 2) = cosfr(DEGREE_TO_RADIANS(angle));
 
     return rotation_x_mat;
 }
 
 Matrix* rotation_y_matrix(float angle, int size) {
     Matrix* rotation_y_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_y_mat, 0, 0) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_y_mat, 0, 2) = RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_y_mat, 2, 0) = - RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_y_mat, 2, 2) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_y_mat, 0, 0) = cosfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_y_mat, 0, 2) = sinfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_y_mat, 2, 0) = remove_neg_sign(-sinfr(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_y_mat, 2, 2) = cosfr(DEGREE_TO_RADIANS(angle));
 
     return rotation_y_mat;
 } 
 
 Matrix* rotation_z_matrix(float angle, int size) {
     Matrix* rotation_z_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_z_mat, 0, 0) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_z_mat, 0, 1) = - RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_z_mat, 1, 0) = RADIANS_TO_DEGREE(sinf(DEGREE_TO_RADIANS(angle)));
-    MAT_INDEX(*rotation_z_mat, 1, 1) = RADIANS_TO_DEGREE(cosf(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_z_mat, 0, 0) = cosfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_z_mat, 0, 1) = remove_neg_sign(-sinfr(DEGREE_TO_RADIANS(angle)));
+    MAT_INDEX(*rotation_z_mat, 1, 0) = sinfr(DEGREE_TO_RADIANS(angle));
+    MAT_INDEX(*rotation_z_mat, 1, 1) = cosfr(DEGREE_TO_RADIANS(angle));
 
     return rotation_z_mat;
 }

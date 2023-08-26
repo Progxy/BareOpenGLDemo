@@ -62,23 +62,12 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // create transformations
-        Matrix* transform_mat = create_identity_matrix(4);
-        Vector* translation_vec = vec4(0.5f, -0.5f, 0.0f, 1.0f);
-        Matrix* translation_mat = translate_matrix(*translation_vec);
-        deallocate_matrix(translation_vec);
-        Matrix* transform_result = dot_product_matrix(*translation_mat, *transform_mat);
-        deallocate_matrix(transform_mat);
-        deallocate_matrix(translation_mat);
-        transform_mat = transform_result;
-        Matrix* rotation_mat = rotation_x_matrix(90.0, 4);
-        Matrix* rotation_result = dot_product_matrix(*rotation_mat, *transform_mat);
-        deallocate_matrix(transform_mat);
-        deallocate_matrix(rotation_mat);
-        transform_mat = rotation_result;
+        Matrix* rotation_y_mat = rotation_y_matrix(90.0f, 4);
 
         // get matrix's uniform location and set matrix
         unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform_mat -> data);
+        print_matrix(*rotation_y_mat, "Transformation Matrix");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, rotation_y_mat -> data);
         
 
         // Use the shaders
@@ -91,7 +80,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glfwPollEvents();
         
         // Remove the used transformation matrix
-        deallocate_matrix(transform_mat);
+        deallocate_matrix(rotation_y_mat);
 
     }
     return;
