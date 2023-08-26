@@ -57,24 +57,26 @@ Matrix* rotation_z_matrix(float angle, int size) {
 }
 
 // Function to create a perspective projection matrix
+// http://www.songho.ca/opengl/gl_projectionmatrix.html
 Matrix* perspective_matrix(float fov, float aspect, float near, float far) {
     Matrix* perspective_mat = alloc_matrix(0.0f, 4, 4, FALSE);
     
-    // Calculate the tangent of half the vertical field of view
+    // Calculate the tangent of half the vertical field of view and other parameters
     float tanHalfFov = tanfr(DEGREE_TO_RADIANS(fov / 2.0f));
-    float halfHeight = near * tanHalfFov;           /* half height of near plane */
+    float halfHeight = near * tanHalfFov;   
     float halfWidth = halfHeight * aspect;
-
-    float left   =  halfWidth;
-    float right  = -halfWidth;
-    float top    =  halfHeight;
+    float left =  halfWidth;
+    float right = -halfWidth;
+    float top =  halfHeight;
     float bottom = -halfHeight;
+    float zRange = far - near;
 
-    // Calculate the values for the projection matrix
-    float zRange = near - far;
     
-    MAT_INDEX(*perspective_mat, 0, 0) =  (2.0f * near); // TODO
-    MAT_INDEX(*perspective_mat, 1, 1) = 1.0f / tanHalfFov;
+    // Calculate the values for the projection matrix
+    MAT_INDEX(*perspective_mat, 0, 0) =  (2.0f * near) / (right + left); 
+    MAT_INDEX(*perspective_mat, 0, 2) =  (right + left) / (right - left);
+    MAT_INDEX(*perspective_mat, 1, 1) = (2.0f * near) / (top - bottom);
+    MAT_INDEX(*perspective_mat, 1, 2) = (top + bottom) / (top - bottom);
     MAT_INDEX(*perspective_mat, 2, 2) = ((-1.0f) * (near + far)) / zRange;
     MAT_INDEX(*perspective_mat, 2, 3) = -(2.0f * far * near) / zRange;
     MAT_INDEX(*perspective_mat, 3, 2) = -1.0f;
