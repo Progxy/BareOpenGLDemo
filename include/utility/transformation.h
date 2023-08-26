@@ -59,6 +59,8 @@ Matrix* rotation_z_matrix(float angle, int size) {
 // Function to create a perspective projection matrix
 Matrix* perspective(float fov, float aspect, float near, float far) {
     Matrix* perspective_mat = alloc_matrix(0.0f, 4, 4, FALSE);
+    // Fov from degree to radians
+    fov = DEGREE_TO_RADIANS(fov);
     
     // Calculate the tangent of half the vertical field of view
     float tanHalfFov = tanfr(fov / 2.0f);

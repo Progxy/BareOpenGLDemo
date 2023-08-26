@@ -61,15 +61,25 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // create transformations
-        Vector* vec = vec4(1.25f, 1.25f, 1.25f, 1.0f);
-        Matrix* scale_mat = scale_matrix(*vec);
-        deallocate_matrix(vec);
-
-        // get matrix's uniform location and set matrix
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, scale_mat -> data);
+        // Create the model matrix
+        Matrix* model = rotation_x_matrix(-55.0f, 4); 
         
+        // Create the view matrix
+        Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 0.0f);
+        Matrix* view = translate_matrix(*translation_vec); 
+
+        // Create the projection matrix
+        Matrix* projection = perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+
+        // Send the matrices to the shader
+        unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model -> data);
+        
+        unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view -> data);
+        
+        unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection -> data);
 
         // Use the shaders
         glUseProgram(shaderProgram);
@@ -80,9 +90,11 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glfwSwapBuffers(window);
         glfwPollEvents();
         
-        // Remove the used transformation matrix
-        deallocate_matrix(scale_mat);
-
+        // Remove the used matrix
+        deallocate_matrix(model);
+        deallocate_matrix(view);
+        deallocate_matrix(projection);
+    
     }
     return;
 }
