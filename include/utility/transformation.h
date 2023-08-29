@@ -17,16 +17,6 @@ Matrix* scale_matrix(Vector scaling_vec) {
     return scaling_mat;
 }
 
-Matrix* translate_matrix(Vector translation_vec) {
-    Matrix* translation_mat = create_identity_matrix(translation_vec.rows);
-    
-    for (int i = 0; i < translation_vec.rows; ++i) {
-        MAT_INDEX(*translation_mat, i, 3) = VEC_INDEX(translation_vec, i);
-    }
-
-    return translation_mat;
-}
-
 Matrix* rotation_x_matrix(float angle, int size) {
     Matrix* rotation_x_mat = create_identity_matrix(size);
     MAT_INDEX(*rotation_x_mat, 1, 1) = cosfr(deg_to_rad(angle));
@@ -115,7 +105,7 @@ Matrix* rotate_matrix(Matrix* mat, float angle, Vector* vec) {
     scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 0));
     scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 0));
     scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 0));
-    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vec = sum_vecs(3, *mat0, *mat1, *mat2);
     copy_vector_to_matrix_col(copy_vec, result, 0);
     deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
     
@@ -128,7 +118,7 @@ Matrix* rotate_matrix(Matrix* mat, float angle, Vector* vec) {
     scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 1));
     scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 1));
     scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 1));
-    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vec = sum_vecs(3, *mat0, *mat1, *mat2);
     copy_vector_to_matrix_col(copy_vec, result, 1);
     deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
 
@@ -141,7 +131,7 @@ Matrix* rotate_matrix(Matrix* mat, float angle, Vector* vec) {
     scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 2));
     scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 2));
     scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 2));
-    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vec = sum_vecs(3, *mat0, *mat1, *mat2);
     copy_vector_to_matrix_col(copy_vec, result, 2);
     deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
 

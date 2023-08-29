@@ -32,7 +32,7 @@ float remove_neg_sign(float val) {
 }
 
 void print_matrix(Matrix mat, const char* mat_name) {
-    printf("\n-------------------------------------\n");
+    printf("-------------------------------------\n");
     printf("%s '%s': \n\n", mat.isVec ? "Vector" : "Matrix", mat_name);
 
     for (int row = 0; row < mat.rows; ++row) {
@@ -42,7 +42,7 @@ void print_matrix(Matrix mat, const char* mat_name) {
         printf("\n");
     }
 
-    printf("\n-------------------------------------\n");
+    printf("-------------------------------------\n");
 
     return;
 }
@@ -78,21 +78,6 @@ Matrix* create_identity_matrix(int size) {
     }
 
     return id_mat;
-}
-
-Vector* sum_vectors(Vector a, Vector b) {
-    // Assert that the vectors have the same size
-    assert((a.rows == b.rows) && a.isVec && b.isVec);
-
-    // Create the result vector
-    Vector* res = alloc_vector(0.0f, a.rows);
-
-    // Sum each row and store the result inside the result vector
-    for (int i = 0; i < a.rows; ++i) {
-        VEC_INDEX(*res, i) = VEC_INDEX(a, i) + VEC_INDEX(b, i); 
-    }
-
-    return res;
 }
 
 float get_vector_length(Vector vec) {
@@ -195,21 +180,6 @@ void scalar_sum(Matrix mat, float scalar) {
     }
 
     return;
-}
-
-Vector* sum_three_vec(Vector a, Vector b, Vector c) {
-    // Assert that the vectors have the same size
-    assert((a.rows == b.rows && a.rows == c.rows) && a.isVec && b.isVec && c.isVec);
-
-    // Create the result vector
-    Vector* res = alloc_vector(0.0f, a.rows);
-
-    // Sum each row and store the result inside the result vector
-    for (int i = 0; i < a.rows; ++i) {
-        VEC_INDEX(*res, i) = VEC_INDEX(a, i) + VEC_INDEX(b, i) + VEC_INDEX(c, i); 
-    }
-
-    return res;
 }
 
 void scalar_product_matrix(Matrix mat, float scalar) {
@@ -355,7 +325,7 @@ Vector* sum_vecs(int len, ...) {
         assert(vec.rows == res -> rows);
 
         for (int row = 0; row < res -> rows; ++row) {
-            VEC_INDEX(*res, i) += VEC_INDEX(vec, i); 
+            VEC_INDEX(*res, row) += VEC_INDEX(vec, row); 
         }
     }
     
