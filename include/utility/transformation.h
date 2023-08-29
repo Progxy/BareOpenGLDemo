@@ -79,4 +79,81 @@ Matrix* perspective_matrix(float fov, float aspect, float near, float far) {
 
     return perspective_mat;
 }
+
+Matrix* rotate_matrix(Matrix* mat, float angle, Vector* vec) {
+    assert((vec -> rows) == 3);
+
+    float a = angle;
+    float c = cosf(a);
+    float s = sinf(a);
+
+    Vector* axis = duplicate_vector(vec);
+    normalize_vector(axis);
+    Vector* temp = duplicate_vector(axis);
+    scalar_product_vector(*temp, (1.0f - c));
+
+    Matrix* rotate = alloc_matrix(0.0f, 4, 4, FALSE);
+    MAT_INDEX(*rotate, 0, 0) = c + VEC_INDEX(*temp, 0) * VEC_INDEX(*axis, 0);
+    MAT_INDEX(*rotate, 1, 0) = 0 + VEC_INDEX(*temp, 0) * VEC_INDEX(*axis, 1) + s * VEC_INDEX(*axis, 2);
+    MAT_INDEX(*rotate, 2, 0) = 0 + VEC_INDEX(*temp, 0) * VEC_INDEX(*axis, 2) - s * VEC_INDEX(*axis, 1);
+
+    MAT_INDEX(*rotate, 0, 1) = 0 + VEC_INDEX(*temp, 1) * VEC_INDEX(*axis, 0) - s * VEC_INDEX(*axis, 2);
+    MAT_INDEX(*rotate, 1, 1) = c + VEC_INDEX(*temp, 1) * VEC_INDEX(*axis, 1);
+    MAT_INDEX(*rotate, 2, 1) = 0 + VEC_INDEX(*temp, 1) * VEC_INDEX(*axis, 2) + s * VEC_INDEX(*axis, 0);
+
+    MAT_INDEX(*rotate, 0, 2) = 0 + VEC_INDEX(*temp, 2) * VEC_INDEX(*axis, 0) + s * VEC_INDEX(*axis, 1);
+    MAT_INDEX(*rotate, 1, 2) = 0 + VEC_INDEX(*temp, 2) * VEC_INDEX(*axis, 1) - s * VEC_INDEX(*axis, 0);
+    MAT_INDEX(*rotate, 2, 2) = c + VEC_INDEX(*temp, 2) * VEC_INDEX(*axis, 2);
+
+    Matrix* result = alloc_matrix(0.0f, 4, 4, FALSE);
+    Vector* mat0 = get_col(mat, 0);
+    Vector* mat1 = get_col(mat, 1);
+    Vector* mat2 = get_col(mat, 2);
+    Vector* copy_vec;
+
+    // result[0] = mat0 * MAT_INDEX(rotate, 0, 0) + mat1 * MAT_INDEX(rotate, 1, 0) + mat2 * MAT_INDEX(rotate, 2, 0);
+    scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 0));
+    scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 0));
+    scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 0));
+    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vector_to_matrix_col(copy_vec, result, 0);
+    deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
+    
+    // Get again the cols
+    mat0 = get_col(mat, 0);
+    mat1 = get_col(mat, 1);
+    mat2 = get_col(mat, 2);
+
+    // result[1] = mat0 * MAT_INDEX(*rotate, 0, 1) + mat1 * MAT_INDEX(*rotate, 1, 1) + mat2 * MAT_INDEX(*rotate, 2, 1);
+    scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 1));
+    scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 1));
+    scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 1));
+    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vector_to_matrix_col(copy_vec, result, 1);
+    deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
+
+    // Get again the cols
+    mat0 = get_col(mat, 0);
+    mat1 = get_col(mat, 1);
+    mat2 = get_col(mat, 2);
+
+    // result[2] = mat0 * MAT_INDEX(*rotate, 0, 2) + mat1 * MAT_INDEX(*rotate, 1, 2) + mat2 * MAT_INDEX(*rotate, 2, 2);
+    scalar_product_vector(*mat0, MAT_INDEX(*rotate, 0, 2));
+    scalar_product_vector(*mat1, MAT_INDEX(*rotate, 1, 2));
+    scalar_product_vector(*mat2, MAT_INDEX(*rotate, 2, 2));
+    copy_vec = sum_three_vec(*mat0, *mat1, *mat2);
+    copy_vector_to_matrix_col(copy_vec, result, 2);
+    deallocate_matrices(4, copy_vec, mat0, mat1, mat2);
+
+    // result[3] = get_col(mat, 3);
+    copy_vec = get_col(mat, 3);
+    copy_vector_to_matrix_col(copy_vec, result, 3);
+    
+    // Deallocate all the unused resources
+    deallocate_matrices(4, copy_vec, axis, temp, rotate);
+
+    return result;
+}
+
+
 #endif //_TRANSFORMATION_H_

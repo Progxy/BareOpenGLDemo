@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -97,7 +98,7 @@ Vector* sum_vectors(Vector a, Vector b) {
 float get_vector_length(Vector vec) {
     // Check that vec is a vector and that has more than 3 rows
     assert(vec.rows >= 3 && vec.isVec);
-    return sqrtf(powf(VEC_INDEX(vec, 0), 2.0f) + powf(VEC_INDEX(vec, 1), 2.0f));
+    return sqrtf(powf(VEC_INDEX(vec, 0), 2.0f) + powf(VEC_INDEX(vec, 1), 2.0f) + powf(VEC_INDEX(vec, 2), 2.0f));
 }
 
 void normalize_vector(Vector* vec) {
@@ -196,12 +197,36 @@ void scalar_sum(Matrix mat, float scalar) {
     return;
 }
 
-void scalar_product(Matrix mat, float scalar) {
+Vector* sum_three_vec(Vector a, Vector b, Vector c) {
+    // Assert that the vectors have the same size
+    assert((a.rows == b.rows && a.rows == c.rows) && a.isVec && b.isVec && c.isVec);
+
+    // Create the result vector
+    Vector* res = alloc_vector(0.0f, a.rows);
+
+    // Sum each row and store the result inside the result vector
+    for (int i = 0; i < a.rows; ++i) {
+        VEC_INDEX(*res, i) = VEC_INDEX(a, i) + VEC_INDEX(b, i) + VEC_INDEX(c, i); 
+    }
+
+    return res;
+}
+
+void scalar_product_matrix(Matrix mat, float scalar) {
     // Multiply each element with the scalar
     for (int row = 0; row < mat.rows; ++row) {
         for (int col = 0; col < mat.cols; ++col) {
             MAT_INDEX(mat, row, col) *= scalar;
         }
+    }
+
+    return;
+}
+
+void scalar_product_vector(Vector vec, float scalar) {
+    // Multiply each element with the scalar
+    for (int row = 0; row < vec.rows; ++row) {
+        VEC_INDEX(vec, row) *= scalar;
     }
 
     return;
@@ -230,6 +255,86 @@ Vector* vec4(float a, float b, float c, float d) {
     VEC_INDEX(*vec, 3) = d;
 
     return vec;
+}
+
+Matrix* duplicate_matrix(Matrix* mat) {
+    Matrix* duplicate_mat = alloc_matrix(0.0f, mat -> rows, mat -> cols, mat -> isVec);
+    
+    // Copy the content of one matrix to the other
+    for (int row = 0; row < mat -> rows; ++row) {
+        for (int col = 0; col < mat -> cols; ++col) {
+            MAT_INDEX(*duplicate_mat, row, col) = MAT_INDEX(*mat, row, col); 
+        }
+    }
+
+    return duplicate_mat;
+}
+
+Vector* duplicate_vector(Vector* vec) {
+    Vector* duplicate_vec = alloc_vector(0.0f, vec -> rows);
+    
+    // Copy the content of one matrix to the other
+    for (int row = 0; row < vec -> rows; ++row) {
+        VEC_INDEX(*duplicate_vec, row) = VEC_INDEX(*vec, row); 
+    }
+
+    return duplicate_vec;
+}
+
+Vector* get_col(Matrix* mat, int col) {
+    Vector* row_vec = alloc_vector(0.0f, mat -> rows);
+
+    for (int row = 0; row < mat -> rows; ++row) {
+        VEC_INDEX(*row_vec, row) = MAT_INDEX(*mat, row, col);
+    }
+
+    return row_vec;
+}
+
+void copy_matrix(Matrix* src, Matrix* dest) {
+    assert((src -> rows == dest -> rows) && (src -> cols == dest -> cols));
+
+    for (int row = 0; row < src -> rows; ++row) {
+        for (int col = 0; col < src -> cols; ++col) {
+            MAT_INDEX(*dest, row, col) = MAT_INDEX(*src, row, col);
+        }
+    }
+
+    return;
+}
+
+void copy_vector(Vector* src, Vector* dest) {
+    assert(src -> rows == dest -> rows);
+
+    for (int row = 0; row < src -> rows; ++row) {
+        VEC_INDEX(*dest, row) = VEC_INDEX(*src, row);
+    }
+
+    return;
+}
+
+void copy_vector_to_matrix_col(Vector* src, Matrix* dest, int col) {
+    assert(src -> rows == dest -> rows);
+
+    for (int row = 0; row < src -> rows; ++row) {
+        MAT_INDEX(*dest, row, col) = VEC_INDEX(*src, row);
+    }
+
+    return;
+}
+
+void deallocate_matrices(int len, ...) {
+    va_list ptr;
+    va_start(ptr, len);
+
+    for (int i = 0; i < len; ++i) {
+        Matrix* mat = va_arg(ptr, Matrix*);
+        deallocate_matrix(mat);
+    }
+
+    va_end(ptr);
+
+    return;
 }
 
 #endif // _MATRIX_H_
