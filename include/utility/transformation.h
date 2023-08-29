@@ -155,5 +155,24 @@ Matrix* rotate_matrix(Matrix* mat, float angle, Vector* vec) {
     return result;
 }
 
+Matrix* translate_mat(Matrix* mat, Vector* vec) {
+    Matrix* result = duplicate_matrix(mat);
+    Vector* mat0 = get_col(mat, 0);
+    Vector* mat1 = get_col(mat, 1);
+    Vector* mat2 = get_col(mat, 2);
+    Vector* mat3 = get_col(mat, 3);
+    
+    // result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+    scalar_product_vector(*mat0, VEC_INDEX(*vec, 0));
+    scalar_product_vector(*mat1, VEC_INDEX(*vec, 1));
+    scalar_product_vector(*mat2, VEC_INDEX(*vec, 2));
+    Vector* copy_vec = sum_vecs(4, *mat0, *mat1, *mat2, *mat3);
+    copy_vector_to_matrix_col(copy_vec, result, 3);
+
+    // Deallocate all the unused resources
+    deallocate_matrices(5, copy_vec, mat0, mat1, mat2, mat3);
+
+    return result;
+}
 
 #endif //_TRANSFORMATION_H_

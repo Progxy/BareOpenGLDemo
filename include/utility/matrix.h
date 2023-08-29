@@ -324,17 +324,44 @@ void copy_vector_to_matrix_col(Vector* src, Matrix* dest, int col) {
 }
 
 void deallocate_matrices(int len, ...) {
-    va_list ptr;
-    va_start(ptr, len);
+    va_list args;
+    va_start(args, len);
 
     for (int i = 0; i < len; ++i) {
-        Matrix* mat = va_arg(ptr, Matrix*);
+        Matrix* mat = va_arg(args, Matrix*);
         deallocate_matrix(mat);
     }
 
-    va_end(ptr);
+    va_end(args);
 
     return;
+}
+
+Vector* sum_vecs(int len, ...) {
+    va_list args;
+
+    va_start(args, len);
+
+    Vector a = va_arg(args, Vector);
+
+    // Create the result vector
+    Vector* res = duplicate_vector(&a);
+
+    // Sum each row and store the result inside the result vector
+    for (int i = 0; i < len - 1; ++i) {   
+        Vector vec = va_arg(args, Vector);
+
+        // Assert that the vectors have the same size
+        assert(vec.rows != res -> rows);
+
+        for (int row = 0; row < vec.rows; ++row) {
+            VEC_INDEX(*res, i) += VEC_INDEX(vec, i); 
+        }
+    }
+    
+    va_end(args);
+
+    return res;
 }
 
 #endif // _MATRIX_H_
