@@ -29,7 +29,7 @@ int main() {
 
     // Load vertex
     unsigned int VBO, VAO, EBO;
-    loadVertex(&VAO, &VBO, &EBO);
+    loadVertex(&VAO, &VBO, &EBO, shaderProgram);
 
     printf("DEBUG: Rendering...\n");        
 
