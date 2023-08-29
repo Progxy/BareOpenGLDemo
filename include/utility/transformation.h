@@ -58,7 +58,6 @@ Matrix* perspective_matrix(float fov, float aspect, float near, float far) {
     // Calculate the tangent of half the vertical field of view and other parameters
     float tanHalfFov = tanf(deg_to_rad(fov) / 2.0f);
     float zRange = far - near;
-
     
     // Calculate the values for the projection matrix
     MAT_INDEX(*perspective_mat, 0, 0) =  (1.0f) / (aspect * tanHalfFov); 
