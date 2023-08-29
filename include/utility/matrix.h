@@ -352,9 +352,9 @@ Vector* sum_vecs(int len, ...) {
         Vector vec = va_arg(args, Vector);
 
         // Assert that the vectors have the same size
-        assert(vec.rows != res -> rows);
+        assert(vec.rows == res -> rows);
 
-        for (int row = 0; row < vec.rows; ++row) {
+        for (int row = 0; row < res -> rows; ++row) {
             VEC_INDEX(*res, i) += VEC_INDEX(vec, i); 
         }
     }
