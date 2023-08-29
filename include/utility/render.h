@@ -73,7 +73,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         deallocate_matrix(translation_vec); 
 
         // Create the projection matrix
-        Matrix* projection = perspective_matrix(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+        Matrix* projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
 
         // Send the matrices to the shader
         print_matrix(*model, "Model Matrix");

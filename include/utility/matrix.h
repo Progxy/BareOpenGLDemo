@@ -7,15 +7,12 @@
 
 #define TRUE 1
 #define FALSE 0
-#define PI 3.14159265359
 #define MAT_INDEX(mat, row, col) (((mat).data)[((mat).cols * (row)) + (col)])
 #define VEC_INDEX(vec, index) (((vec).data)[index])
 #define alloc_vector(init_val, size) (alloc_matrix(init_val, size, 1, TRUE))
 #define MAP_MAT_INDEX(mat, index) (index % ((mat).rows * (mat).cols))
 #define MAP_VEC_INDEX(vec, index) (index % (vec).rows)
 #define scalar_negation(mat) (scalar_product((mat), -1))
-#define RADIANS_TO_DEGREE(angle) ((angle) * (180 / PI))
-#define DEGREE_TO_RADIANS(angle) ((angle) * (PI / 180))
 #define cosfr(rad) (remove_neg_sign(cosf(rad)))
 #define sinfr(rad) (remove_neg_sign(sinf(rad)))
 #define tanfr(rad) (remove_neg_sign(tanf(rad)))

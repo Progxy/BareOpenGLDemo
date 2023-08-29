@@ -1,8 +1,21 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#define __USE_MISC 
+#include <math.h>
+
 #define TRUE 1
 #define FALSE 0
+#define WIDTH 800
+#define HEIGHT 600
+
+float deg_to_rad(float deg) {
+    return deg * (M_PI / 180);
+}
+
+float rad_to_deg(float rad) {
+    return rad * (180 / M_PI);
+}
 
 void print_float_bits(float* val) {
     unsigned char* val_uc = (unsigned char*) val;

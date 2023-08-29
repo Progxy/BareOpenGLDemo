@@ -13,7 +13,7 @@
 int main() {
     // Init the window and check the status of the operation
     GLFWwindow* window;
-    if ((window = initWindow(800, 600, "Game")) == NULL) {
+    if ((window = initWindow(WIDTH, HEIGHT, "Game")) == NULL) {
         return -1;
     }
 
