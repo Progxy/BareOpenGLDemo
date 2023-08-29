@@ -72,6 +72,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         deallocate_matrices(2, temp_garbage, model_vec);
 
         // Create the view matrix
+        // TODO: implement the translate_mat() function
         Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 1.0f);
         Matrix* view = translate_matrix(*translation_vec);
         deallocate_matrix(translation_vec); 
