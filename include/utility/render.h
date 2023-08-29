@@ -65,8 +65,12 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glUseProgram(shaderProgram);
 
         // Create the model matrix
-        Matrix* model = rotation_x_matrix(-55.0f, 4); 
-        
+        Matrix* model = create_identity_matrix(4);
+        Matrix* temp_garbage = model;
+        Vector* model_vec = vec3(1.0f, 0.0f, 0.0f);
+        model = rotate_matrix(model, -55.0f, model_vec);
+        deallocate_matrices(2, temp_garbage, model_vec);
+
         // Create the view matrix
         Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 1.0f);
         Matrix* view = translate_matrix(*translation_vec);
