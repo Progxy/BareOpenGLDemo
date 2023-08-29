@@ -72,10 +72,11 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         deallocate_matrices(2, temp_garbage, model_vec);
 
         // Create the view matrix
-        // TODO: implement the translate_mat() function
-        Vector* translation_vec = vec4(0.0f, 0.0f, -3.0f, 1.0f);
-        Matrix* view = translate_matrix(*translation_vec);
-        deallocate_matrix(translation_vec); 
+        Vector* translation_vec = vec3(0.0f, 0.0f, -3.0f);
+        Matrix* view = create_identity_matrix(4);
+        temp_garbage = view;
+        view = translate_mat(view, translation_vec);
+        deallocate_matrices(2, translation_vec, temp_garbage); 
 
         // Create the projection matrix
         Matrix* projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
