@@ -28,8 +28,8 @@ int main() {
     printf("DEBUG: Loaded shader program\n");
 
     // Load vertex
-    unsigned int VBO, VAO, EBO;
-    loadVertex(&VAO, &VBO, &EBO, shaderProgram);
+    unsigned int VBO, VAO;
+    loadVertex(&VAO, &VBO, shaderProgram);
 
     printf("DEBUG: Rendering...\n");        
 
@@ -37,7 +37,7 @@ int main() {
 
     printf("DEBUG: terminating the program...\n");
 
-    terminate(shaderProgram, &VAO, &VBO, &EBO);
+    terminate(shaderProgram, &VAO, &VBO);
 
     return 0;
 }
