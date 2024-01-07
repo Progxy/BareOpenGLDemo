@@ -12,6 +12,7 @@
 #endif //_STDLIB_DEF_
 
 #include "./transformation.h"
+#include "./camera.h"
 
 void temploadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int* EBO) {
     float vertices[] = {

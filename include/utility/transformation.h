@@ -5,8 +5,6 @@
 #include "./matrix.h"
 #include "./utils.h"
 
-/* TODO: Define all the transformations matrix and perspective matrix and more... */
-
 Matrix* scale_matrix(Vector scaling_vec) {
     Matrix* scaling_mat = create_identity_matrix(scaling_vec.rows);
 
