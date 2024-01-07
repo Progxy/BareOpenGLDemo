@@ -2,7 +2,7 @@
 #define _PARSER_H_
 
 char* readFile(const char* file_path) {
-    FILE* file = fopen(file_path, "r");
+    FILE* file = fopen(file_path, "rb");
 
     // Check file opener status
     if (file == NULL) {
@@ -10,31 +10,27 @@ char* readFile(const char* file_path) {
         return NULL;
     } 
 
-    // Init variables to store the data and eventual flags results
-    char* data = calloc(1, 1);
-    int len, err, eof;
+    // Get the length of the file
+    fseek(file, 0, SEEK_END);
+    unsigned int length = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
-    // Clean the flags
-    clearerr(file);
+    // Set the data buffer
+    char* data = (char*) calloc(length, 1);
+    length = fread(data, 1, length, file);
 
-    // Read the data and check for errors
-    for (len = 0, err = 0, eof = 0; !(eof = feof(file)) && !(err = ferror(file)); fread(data + len, 1, 1, file), len++) {
-        data = realloc(data, len + 1);
-    }
-
-    data[len] = 0;
-
-    // Clean the flags
-    clearerr(file);
-
-    // Check for errors 
-    if (err) {
+    // Check for errors
+    int err = 0;
+    if ((err = ferror(file))) {
         // Free memory previously allocated
         free(data);
         printf("READ_FILE:ERROR: the read operation terminated with the following error code: %d\n", err);
         return NULL;
     }
 
+    // Clean the flags
+    clearerr(file);
+    
     // Close file
     fclose(file);
 

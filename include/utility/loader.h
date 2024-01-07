@@ -35,6 +35,10 @@ GLFWwindow* initWindow(int width, int height, const char* title) {
         return NULL;
     }
     
+
+    // configure global opengl state
+    glEnable(GL_DEPTH_TEST);
+
     return window;
 }
 

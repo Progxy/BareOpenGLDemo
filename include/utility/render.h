@@ -51,61 +51,73 @@ void temploadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int* EBO) {
 }
 
 void loadTexture(unsigned int shaderProgram) {
-        // load and create a texture 
+    // load and create a texture 
     // -------------------------
     unsigned int texture1, texture2;
+
     // texture 1
     // ---------
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
+    
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     // load image, create texture and generate mipmaps
     // int width, height, nrChannels;
+    // unsigned char* data;
+    
     // stbi_set_flip_vertically_on_load(TRUE); // tell stb_image.h to flip loaded texture's on the y-axis.
     // unsigned char *data = stbi_load(FileSystem::getPath("resources/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0);
-    // if (data)
-    // {
+    
+    // if (data) {
     //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     //     glGenerateMipmap(GL_TEXTURE_2D);
+    // } else {
+    //     printf("DEBUG: Failed to load texture\n");
     // }
-    // else
-    // {
-    //     std::cout << "Failed to load texture" << std::endl;
-    // }
+    
     // stbi_image_free(data);
+    
     // // texture 2
     // // ---------
-    // glGenTextures(1, &texture2);
-    // glBindTexture(GL_TEXTURE_2D, texture2);
-    // // set the texture wrapping parameters
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // // set texture filtering parameters
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // // load image, create texture and generate mipmaps
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    // load image, create texture and generate mipmaps
     // data = stbi_load(FileSystem::getPath("resources/textures/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
-    // if (data)
-    // {
+
+    // if (data) {
     //     // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
     //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     //     glGenerateMipmap(GL_TEXTURE_2D);
+    // } else {
+    //     printf("DEBUG: Failed to load texture\n");
     // }
-    // else
-    // {
-    //     std::cout << "Failed to load texture" << std::endl;
-    // }
+    
     // stbi_image_free(data);
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
     glUseProgram(shaderProgram);
+    
+    // Load and set the first texture
     glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0); 
+    
+    // Load and set the second texture
     glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1); 
     
     return;
@@ -138,7 +150,7 @@ void loadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int* EBO, unsigne
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
     glEnableVertexAttribArray(0);
 
     // Use the shaders
@@ -155,6 +167,9 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         // Clean the window before rendering anything
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Activate shader
+        glUseProgram(shaderProgram);
 
         // Create the model matrix
         Matrix* model = create_identity_matrix(4);
@@ -177,6 +192,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         print_matrix(*model, "Model Matrix");
         print_matrix(*view, "View Matrix");
         print_matrix(*projection, "Projection Matrix");
+
         unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model -> data);
         
@@ -198,7 +214,6 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         deallocate_matrix(model);
         deallocate_matrix(view);
         deallocate_matrix(projection);
-    
     }
     return;
 }
@@ -209,7 +224,6 @@ void terminate(unsigned int shaderProgram, unsigned int* VAO, unsigned int* VBO,
     glDeleteBuffers(1, EBO);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
-
     return;
 }
 
