@@ -17,30 +17,30 @@ Matrix* scale_matrix(Vector scaling_vec) {
 
 Matrix* rotation_x_matrix(float angle, int size) {
     Matrix* rotation_x_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_x_mat, 1, 1) = cosfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_x_mat, 1, 2) = remove_neg_sign(-sinfr(deg_to_rad(angle)));
-    MAT_INDEX(*rotation_x_mat, 2, 1) = sinfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_x_mat, 2, 2) = cosfr(deg_to_rad(angle));
+    MAT_INDEX(*rotation_x_mat, 1, 1) = cosf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_x_mat, 1, 2) = (-sinf(deg_to_rad(angle)));
+    MAT_INDEX(*rotation_x_mat, 2, 1) = sinf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_x_mat, 2, 2) = cosf(deg_to_rad(angle));
 
     return rotation_x_mat;
 }
 
 Matrix* rotation_y_matrix(float angle, int size) {
     Matrix* rotation_y_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_y_mat, 0, 0) = cosfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_y_mat, 0, 2) = sinfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_y_mat, 2, 0) = remove_neg_sign(-sinfr(deg_to_rad(angle)));
-    MAT_INDEX(*rotation_y_mat, 2, 2) = cosfr(deg_to_rad(angle));
+    MAT_INDEX(*rotation_y_mat, 0, 0) = cosf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_y_mat, 0, 2) = sinf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_y_mat, 2, 0) = (-sinf(deg_to_rad(angle)));
+    MAT_INDEX(*rotation_y_mat, 2, 2) = cosf(deg_to_rad(angle));
 
     return rotation_y_mat;
 } 
 
 Matrix* rotation_z_matrix(float angle, int size) {
     Matrix* rotation_z_mat = create_identity_matrix(size);
-    MAT_INDEX(*rotation_z_mat, 0, 0) = cosfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_z_mat, 0, 1) = remove_neg_sign(-sinfr(deg_to_rad(angle)));
-    MAT_INDEX(*rotation_z_mat, 1, 0) = sinfr(deg_to_rad(angle));
-    MAT_INDEX(*rotation_z_mat, 1, 1) = cosfr(deg_to_rad(angle));
+    MAT_INDEX(*rotation_z_mat, 0, 0) = cosf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_z_mat, 0, 1) = (-sinf(deg_to_rad(angle)));
+    MAT_INDEX(*rotation_z_mat, 1, 0) = sinf(deg_to_rad(angle));
+    MAT_INDEX(*rotation_z_mat, 1, 1) = cosf(deg_to_rad(angle));
 
     return rotation_z_mat;
 }

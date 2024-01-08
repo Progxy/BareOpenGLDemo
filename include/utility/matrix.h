@@ -14,9 +14,6 @@
 #define MAP_MAT_INDEX(mat, index) (index % ((mat).rows * (mat).cols))
 #define MAP_VEC_INDEX(vec, index) (index % (vec).rows)
 #define scalar_negation(mat) (scalar_product((mat), -1))
-#define cosfr(rad) (remove_neg_sign(cosf(rad)))
-#define sinfr(rad) (remove_neg_sign(sinf(rad)))
-#define tanfr(rad) (remove_neg_sign(tanf(rad)))
 
 typedef struct Matrix {
     int rows;
@@ -26,10 +23,6 @@ typedef struct Matrix {
 } Matrix;
 
 typedef Matrix Vector;
-
-float remove_neg_sign(float val) {
-    return (val == (-(0.0f))) ? 0.0f : val;
-}
 
 void print_matrix(Matrix mat, const char* mat_name) {
     printf("-------------------------------------\n");
