@@ -51,79 +51,6 @@ void temploadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int* EBO) {
     return;
 }
 
-void loadTexture(unsigned int shaderProgram) {
-    // load and create a texture 
-    // -------------------------
-    unsigned int texture1, texture2;
-
-    // texture 1
-    // ---------
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // load image, create texture and generate mipmaps
-    // int width, height, nrChannels;
-    // unsigned char* data;
-    
-    // stbi_set_flip_vertically_on_load(TRUE); // tell stb_image.h to flip loaded texture's on the y-axis.
-    // unsigned char *data = stbi_load(FileSystem::getPath("resources/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0);
-    
-    // if (data) {
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //     glGenerateMipmap(GL_TEXTURE_2D);
-    // } else {
-    //     printf("DEBUG: Failed to load texture\n");
-    // }
-    
-    // stbi_image_free(data);
-    
-    // // texture 2
-    // // ---------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    // load image, create texture and generate mipmaps
-    // data = stbi_load(FileSystem::getPath("resources/textures/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
-
-    // if (data) {
-    //     // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    //     glGenerateMipmap(GL_TEXTURE_2D);
-    // } else {
-    //     printf("DEBUG: Failed to load texture\n");
-    // }
-    
-    // stbi_image_free(data);
-
-    // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-    // -------------------------------------------------------------------------------------------
-    glUseProgram(shaderProgram);
-    
-    // Load and set the first texture
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0); 
-    
-    // Load and set the second texture
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1); 
-    
-    return;
-}
-
 void loadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int shaderProgram) {
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -213,12 +140,20 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         // Activate shader
         glUseProgram(shaderProgram);
 
+        // Generate data for the camera movement
+        const float radius = 12.0f;
+        float camX = sinf(glfwGetTime() / 4) * radius;
+        float camZ = cosf(glfwGetTime() / 4) * radius;
+
+        // Set the camera parameters
+        Vector* camera_pos = vec3(camX, 0.0, camZ);
+        Vector* camera_target = vec3(0.0, 0.0, 0.0);
+        Vector* camera_up = vec3(0.0, 1.0, 0.0);
+        Camera camera = init_camera(camera_pos, camera_target, camera_up);
+
         // Create the view matrix
-        Vector* translation_vec = vec3(0.0f, 0.0f, -3.0f);
-        Matrix* view = create_identity_matrix(4);
-        Matrix* temp_garbage = view;
-        view = translate_mat(view, translation_vec);
-        deallocate_matrices(2, translation_vec, temp_garbage); 
+        Matrix* view = look_at(camera);
+        deallocate_matrices(3, camera_pos, camera_target, camera_up); 
 
         // Create the projection matrix
         Matrix* projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
@@ -237,7 +172,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         for (unsigned int i = 0; i < 10; ++i) {
             // Create the model matrix
             Matrix* model = create_identity_matrix(4);
-            temp_garbage = model;
+            Matrix* temp_garbage = model;
             model = translate_mat(model, cube_positions[i]);
             deallocate_matrix(temp_garbage); 
             temp_garbage = model;

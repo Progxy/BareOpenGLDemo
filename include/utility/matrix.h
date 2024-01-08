@@ -148,7 +148,7 @@ Matrix* dot_product_matrix(Matrix a, Matrix b) {
     return mat;
 }
 
-Matrix* sum_matrix(Matrix a, Matrix b) {
+Matrix* sum_matrix(Matrix a, Matrix b, char subtract) {
     // Check that the number of rows and the number of columns of the matrices matches
     assert(a.rows == b.rows && a.cols == b.cols);
 
@@ -158,7 +158,7 @@ Matrix* sum_matrix(Matrix a, Matrix b) {
     // Sum the matrices and store the result inside the result matrix  
     for (int row = 0; row < a.rows; ++row) {
         for (int col = 0; col < a.cols; ++col) {
-            MAT_INDEX(*mat, row, col) = MAT_INDEX(a, row, col) + MAT_INDEX(b, row, col);
+            MAT_INDEX(*mat, row, col) = MAT_INDEX(a, row, col) + (subtract * -1) * MAT_INDEX(b, row, col);
         }
     }
 
