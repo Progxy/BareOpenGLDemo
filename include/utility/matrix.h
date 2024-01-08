@@ -11,8 +11,6 @@
 #define MAT_INDEX(mat, row, col) (((mat).data)[((mat).cols * (row)) + (col)])
 #define VEC_INDEX(vec, index) (((vec).data)[index])
 #define alloc_vector(init_val, size) (alloc_matrix(init_val, size, 1, TRUE))
-#define MAP_MAT_INDEX(mat, index) (index % ((mat).rows * (mat).cols))
-#define MAP_VEC_INDEX(vec, index) (index % (vec).rows)
 #define scalar_negation(mat) (scalar_product((mat), -1))
 
 typedef struct Matrix {
