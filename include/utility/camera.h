@@ -17,6 +17,15 @@ Camera init_camera(Vector camera_pos, Vector camera_front, Vector camera_up, flo
     return camera;
 }
 
+void update_camera_front(Camera camera, float* mouse_pos) {
+    float yaw = mouse_pos[0];
+    float pitch = mouse_pos[1];
+    Vector direction = vec(3, cosf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)), sinf(deg_to_rad(pitch)), sinf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)));
+    normalize_vector(direction, &(camera.camera_front));
+    deallocate_matrices(1, direction);
+    return;
+}
+
 void update_camera_speed(Camera* camera) {
     static float last_frame = 0.0f;
     static float delta_time = 1.0f;

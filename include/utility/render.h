@@ -138,7 +138,9 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
     while (!glfwWindowShouldClose(window)) {
         // Update the camera speed
         update_camera_speed(&camera);
-        
+
+        update_camera_front(camera, get_mouse_position());
+
         // Handle user input
         processInput(window, camera);
 
@@ -153,7 +155,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         Matrix view = look_at(camera);
 
         // Create the projection matrix
-        Matrix projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
+        Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
 
         // Send the matrices to the shader (The bool param is about column or row majour order, respectively GL_FALSE and GL_TRUE)
         unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");

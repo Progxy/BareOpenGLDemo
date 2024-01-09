@@ -11,6 +11,8 @@
 
 #endif //_STDLIB_DEF_
 
+#include "./input.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 GLFWwindow* initWindow(int width, int height, const char* title) {
@@ -29,6 +31,15 @@ GLFWwindow* initWindow(int width, int height, const char* title) {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
+    // Capture the mouse on window enter
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
+
+    // Set cursor callback
+    glfwSetCursorPosCallback(window, mouse_callback);
+
+    // Set scroll callback
+    glfwSetScrollCallback(window, scroll_callback); 
+
     // Load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         printf("GLAD:LOADING_POINTERS:ERROR: Failed to initialize GLAD\n");
