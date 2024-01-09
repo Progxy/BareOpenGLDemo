@@ -7,19 +7,33 @@
 
 typedef struct Camera {
     Vector camera_pos;
-    Vector camera_target;
+    Vector camera_front;
     Vector camera_up;
+    float camera_speed;
 } Camera;
 
-Camera init_camera(Vector camera_pos, Vector camera_target, Vector camera_up) {
-    Camera camera = {.camera_pos = camera_pos, .camera_target = camera_target, .camera_up = camera_up};
+Camera init_camera(Vector camera_pos, Vector camera_front, Vector camera_up, float camera_speed) {
+    Camera camera = {.camera_pos = camera_pos, .camera_front = camera_front, .camera_up = camera_up, .camera_speed = camera_speed};
     return camera;
+}
+
+void update_camera_speed(Camera* camera) {
+    static float last_frame = 0.0f;
+    static float delta_time = 1.0f;
+    float current_frame = glfwGetTime();
+    camera -> camera_speed /= delta_time; 
+    delta_time = current_frame - last_frame;
+    camera -> camera_speed *= delta_time;
+    last_frame = current_frame;
+    return;
 }
 
 Matrix look_at(Camera camera) {
     // Retrieve the Right, Direction and Up vectors
+    Vector camera_target = alloc_vector(0.0f, 1);
+    sum_matrices(2, &camera_target, camera.camera_front, camera.camera_pos);
     Vector camera_direction = alloc_vector(0.0f, 1);
-    sum_matrices(2, &camera_direction, camera.camera_pos, negate(camera.camera_target));
+    sum_matrices(2, &camera_direction, camera.camera_pos, negate(camera_target));
     normalize_vector(camera_direction, &camera_direction);  
     Vector camera_right = cross_product(camera.camera_up, camera_direction);
     normalize_vector(camera_right, &camera_right);
@@ -43,14 +57,14 @@ Matrix look_at(Camera camera) {
 
     Matrix look_at_mat = alloc_matrix(0.0f, 1, 1);
     dot_product_matrix(2, &look_at_mat, dir_matrix, pos_matrix);
-    deallocate_matrices(3, dir_matrix, pos_matrix, camera_direction);
+    deallocate_matrices(4, dir_matrix, pos_matrix, camera_direction, camera_target);
     gc_dispose();
 
     return look_at_mat;
 }
 
 void deallocate_camera(Camera camera) {
-    deallocate_matrices(3, camera.camera_pos, camera.camera_target, camera.camera_up); 
+    deallocate_matrices(3, camera.camera_pos, camera.camera_front, camera.camera_up); 
     return;
 }
 

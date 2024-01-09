@@ -129,9 +129,18 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         vec(3, -1.3f,  1.0f, -1.5f)
     };
 
+    // Set the camera parameters
+    Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
+    Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
+    Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
+    Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
+
     while (!glfwWindowShouldClose(window)) {
+        // Update the camera speed
+        update_camera_speed(&camera);
+        
         // Handle user input
-        processInput(window);
+        processInput(window, camera);
 
         // Clean the window before rendering anything
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -140,22 +149,8 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         // Activate shader
         glUseProgram(shaderProgram);
 
-        // Generate data for the camera movement
-        const float radius = 12.0f;
-        float camX = sinf(glfwGetTime() / 4) * radius;
-        float camZ = cosf(glfwGetTime() / 4) * radius;
-
-        // Set the camera parameters
-        Vector camera_pos = vec(3, camX, 0.0, camZ);
-        Vector camera_target = vec(3, 0.0f, 0.0f, 0.0f);
-        Vector camera_up = vec(3, 0.0f, 1.0f, 0.0f);
-        Camera camera = init_camera(camera_pos, camera_target, camera_up);
-
         // Create the view matrix
         Matrix view = look_at(camera);
-
-        // Deallocate camera
-        deallocate_camera(camera);
 
         // Create the projection matrix
         Matrix projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
@@ -197,6 +192,10 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         // Remove the used matrices
         deallocate_matrices(2, view, projection);
     }
+
+    // Deallocate the camera
+    deallocate_camera(camera);
+
     return;
 }
 
