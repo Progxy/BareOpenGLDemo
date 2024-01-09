@@ -116,17 +116,17 @@ void loadVertex(unsigned int* VAO, unsigned int* VBO, unsigned int shaderProgram
 }
 
 void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
-    Vector* cube_positions[] = {
-        vec3( 0.0f,  0.0f,  0.0f),
-        vec3( 2.0f,  5.0f, -15.0f),
-        vec3(-1.5f, -2.2f, -2.5f),
-        vec3(-3.8f, -2.0f, -12.3f),
-        vec3( 2.4f, -0.4f, -3.5f),
-        vec3(-1.7f,  3.0f, -7.5f),
-        vec3( 1.3f, -2.0f, -2.5f),
-        vec3( 1.5f,  2.0f, -2.5f),
-        vec3( 1.5f,  0.2f, -1.5f),
-        vec3(-1.3f,  1.0f, -1.5f)
+    Vector cube_positions[] = {
+        vec(3,  0.0f,  0.0f,  0.0f),
+        vec(3,  2.0f,  5.0f, -15.0f),
+        vec(3, -1.5f, -2.2f, -2.5f),
+        vec(3, -3.8f, -2.0f, -12.3f),
+        vec(3,  2.4f, -0.4f, -3.5f),
+        vec(3, -1.7f,  3.0f, -7.5f),
+        vec(3,  1.3f, -2.0f, -2.5f),
+        vec(3,  1.5f,  2.0f, -2.5f),
+        vec(3,  1.5f,  0.2f, -1.5f),
+        vec(3, -1.3f,  1.0f, -1.5f)
     };
 
     while (!glfwWindowShouldClose(window)) {
@@ -146,24 +146,26 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         float camZ = cosf(glfwGetTime() / 4) * radius;
 
         // Set the camera parameters
-        Vector* camera_pos = vec3(camX, 0.0, camZ);
-        Vector* camera_target = vec3(0.0, 0.0, 0.0);
-        Vector* camera_up = vec3(0.0, 1.0, 0.0);
+        Vector camera_pos = vec(3, camX, 0.0, camZ);
+        Vector camera_target = vec(3, 0.0f, 0.0f, 0.0f);
+        Vector camera_up = vec(3, 0.0f, 1.0f, 0.0f);
         Camera camera = init_camera(camera_pos, camera_target, camera_up);
 
         // Create the view matrix
-        Matrix* view = look_at(camera);
-        deallocate_matrices(3, camera_pos, camera_target, camera_up); 
+        Matrix view = look_at(camera);
+
+        // Deallocate camera
+        deallocate_camera(camera);
 
         // Create the projection matrix
-        Matrix* projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
+        Matrix projection = perspective_matrix(45.0f, (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
 
         // Send the matrices to the shader (The bool param is about column or row majour order, respectively GL_FALSE and GL_TRUE)
         unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_TRUE, view -> data);
+        glUniformMatrix4fv(viewLoc, 1, GL_TRUE, view.data);
         
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_TRUE, projection -> data);
+        glUniformMatrix4fv(projectionLoc, 1, GL_TRUE, projection.data);
 
         // Render container
         glBindVertexArray(VAO);
@@ -171,24 +173,21 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         // Draw cubes
         for (unsigned int i = 0; i < 10; ++i) {
             // Create the model matrix
-            Matrix* model = create_identity_matrix(4);
-            Matrix* temp_garbage = model;
-            model = translate_mat(model, cube_positions[i]);
-            deallocate_matrix(temp_garbage); 
-            temp_garbage = model;
-            Vector* model_vec = vec3(1.0f, 0.3f, 0.5f);
+            Matrix model = create_identity_matrix(4);
+            translate_mat(model, cube_positions[i], &model);
+            Vector model_vec = vec(3, 1.0f, 0.3f, 0.5f);
             float angle = 20.0f * i;
-            model = rotate_matrix(model, deg_to_rad(angle), model_vec);
-            deallocate_matrices(2, temp_garbage, model_vec);
+            rotate_matrix(model, deg_to_rad(angle), model_vec, &model);
+            deallocate_matrices(1, model_vec);
 
             // Send the model matrix to the vertex shader
             unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model -> data);
+            glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model.data);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
             
             // Remove the used matrix
-            deallocate_matrix(model);
+            deallocate_matrices(1, model);
         }
 
         // Swap buffers and poll IO events 
@@ -196,8 +195,7 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
         glfwPollEvents();
         
         // Remove the used matrices
-        deallocate_matrix(view);
-        deallocate_matrix(projection);
+        deallocate_matrices(2, view, projection);
     }
     return;
 }

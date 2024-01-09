@@ -8,6 +8,7 @@
 #define FALSE 0
 #define WIDTH 800
 #define HEIGHT 600
+#define DEBUG_INFO(debug_str) printf("DEBUG: %s\n", debug_str)
 
 float deg_to_rad(float deg) {
     return deg * (M_PI / 180);

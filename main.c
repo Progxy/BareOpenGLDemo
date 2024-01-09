@@ -17,7 +17,7 @@ int main() {
         return -1;
     }
 
-    printf("DEBUG: Loaded window\n");
+    DEBUG_INFO("Loaded window");
 
     // Init the shaders and check the status of the operation
     unsigned int shaderProgram;
@@ -25,17 +25,17 @@ int main() {
         return -1;
     }
 
-    printf("DEBUG: Loaded shader program\n");
+    DEBUG_INFO("Loaded shader program");
 
     // Load vertex
     unsigned int VBO, VAO;
     loadVertex(&VAO, &VBO, shaderProgram);
 
-    printf("DEBUG: Rendering...\n");        
+    DEBUG_INFO("Rendering...");        
 
     render(window, shaderProgram, VAO);
 
-    printf("DEBUG: terminating the program...\n");
+    DEBUG_INFO("terminating the program...");
 
     terminate(shaderProgram, &VAO, &VBO);
 
