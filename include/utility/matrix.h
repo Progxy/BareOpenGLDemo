@@ -100,7 +100,7 @@ Matrix alloc_matrix(float init_val, unsigned int rows, unsigned int cols) {
 
 void gc_dispose() {
     Matrix mat = alloc_temp_matrix(0.0f, 0, 0);
-    printf("MATRIX:GC_DISPOSE: disposed %u elements\n", mat.rows);
+    (void) mat;
     return;
 }
 
@@ -110,9 +110,8 @@ Matrix alloc_temp_matrix(float init_val, unsigned int rows, unsigned int cols) {
 
     if (rows == 0 && cols == 0) {
         free(gc_pointer);
-        unsigned int temp = count;
         count = 0;
-        return (Matrix) {.rows = temp};
+        return (Matrix) {};
     }
 
     if (count == 0) {
