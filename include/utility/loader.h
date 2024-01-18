@@ -15,7 +15,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-GLFWwindow* initWindow(int width, int height, const char* title) {
+GLFWwindow* init_window(int width, int height, const char* title) {
     // Init GLFW
     glfwInit();
 
@@ -46,73 +46,72 @@ GLFWwindow* initWindow(int width, int height, const char* title) {
         return NULL;
     }
     
-
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
     return window;
 }
 
-unsigned int initShaders(const char* pathVertexShader, const char* pathFragmentShader) {
+unsigned int init_shaders(const char* path_vertex_shader, const char* path_fragment_shader) {
     char infoLog[512];
-    const char* fragmentShaderData;
-    const char* vertexShaderData;
+    const char* fragment_shader_data;
+    const char* vertex_shader_data;
     int status;
 
     // Load shaders 
-    if ((vertexShaderData = readFile(pathVertexShader)) == NULL) {
+    if ((vertex_shader_data = read_file(path_vertex_shader)) == NULL) {
         return INT32_MAX;
     }    
     
-    if ((fragmentShaderData = readFile(pathFragmentShader)) == NULL) {
+    if ((fragment_shader_data = read_file(path_fragment_shader)) == NULL) {
         return INT32_MAX;
     }
 
     // Retrieve the vertex shaders
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderData, NULL);
-    glCompileShader(vertexShader);
+    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_data, NULL);
+    glCompileShader(vertex_shader);
 
     // Check for shader compile errors
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &status);
     if (!status) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
         printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s\n", infoLog);
         return INT32_MAX;
     }
 
     // Retrieve the fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderData, NULL);
-    glCompileShader(fragmentShader);
+    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_data, NULL);
+    glCompileShader(fragment_shader);
     
     // Check for shader compile errors
-    glGetProgramiv(fragmentShader, GL_LINK_STATUS, &status);
+    glGetProgramiv(fragment_shader, GL_LINK_STATUS, &status);
     if (!status) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
         printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED: %s\n", infoLog);
         return INT32_MAX;
     }
 
     // Link shaders
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    unsigned int vertex_shader_program = glCreateProgram();
+    glAttachShader(vertex_shader_program, vertex_shader);
+    glAttachShader(vertex_shader_program, fragment_shader);
+    glLinkProgram(vertex_shader_program);
 
     // Check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
+    glGetProgramiv(vertex_shader_program, GL_LINK_STATUS, &status);
     if (!status) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        glGetProgramInfoLog(vertex_shader_program, 512, NULL, infoLog);
         printf("ERROR::SHADER::PROGRAM::LINKING_FAILED: %s\n", infoLog);
         return INT32_MAX;
     }
 
     // Deallocate the shaders
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
     
-    return shaderProgram;
+    return vertex_shader_program;
 }
 
 // Whenever the window size changed (by OS or user resize) this callback function executes

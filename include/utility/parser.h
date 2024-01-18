@@ -1,7 +1,7 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
-char* readFile(const char* file_path) {
+char* read_file(const char* file_path) {
     FILE* file = fopen(file_path, "rb");
 
     // Check file opener status

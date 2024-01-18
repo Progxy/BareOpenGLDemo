@@ -14,15 +14,19 @@
 #include "./transformation.h"
 #include "./camera.h"
 
-void set_shader(unsigned int shader, const char* data_name, Matrix matrix) {
-    // Send the matrices to the shader Note that OPENGL expects matrix to be column-majour order. 
-    unsigned int object = glGetUniformLocation(shader, data_name);
-    
-    if (IS_VEC(matrix)) {
-        return glUniform3fv(object, 1, (void*) matrix.data);
-    }
+void set_matrix(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_mat)(GLint, GLsizei, GLboolean, const GLfloat*)) {
+    unsigned int object = glGetUniformLocation(shader, obj_name);   
+    return (*uniform_mat)(object, 1, GL_TRUE, obj_data);
+}
 
-    return glUniformMatrix4fv(object, 1, GL_TRUE, (void*) matrix.data);
+void set_vec(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_vec)(GLint, GLsizei, const GLfloat*)) {
+    unsigned int object = glGetUniformLocation(shader, obj_name);
+    return (*uniform_vec)(object, 1, obj_data);
+}
+
+void set_value(unsigned int shader, const char* obj_name, float obj_data, void (*uniform_value)(GLint, GLfloat)) {
+    unsigned int object = glGetUniformLocation(shader, obj_name);
+    return (*uniform_value)(object, obj_data);
 }
 
 void loadVertex(unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
@@ -100,7 +104,52 @@ float vertices[] = {
     return;
 }
 
-void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_shader, unsigned int VAO, unsigned int light_VAO) {
+void set_light_properties(unsigned int vertex_shader, Vector light_pos, Vector view_pos) {
+    // Use the light shader
+    glUseProgram(vertex_shader);
+
+    // Set the view position
+    set_vec(vertex_shader, "viewPos", view_pos.data, glUniform3fv);
+
+    // Set the data for the material props
+    Vector amb_diff_vec = vec(3, 1.0f, 0.5f, 0.31f);
+    Vector specular_vec = vec(3, 0.5f, 0.5f, 0.5f);
+
+    // Set material properties
+    set_vec(vertex_shader, "material.ambient", amb_diff_vec.data, glUniform3fv);
+    set_vec(vertex_shader, "material.diffuse", amb_diff_vec.data, glUniform3fv);
+    set_vec(vertex_shader, "material.specular", specular_vec.data, glUniform3fv);
+    set_value(vertex_shader, "material.shininess", 32.0f, glUniform1f);
+    deallocate_matrices(2, amb_diff_vec, specular_vec);
+
+    // Set the data for the light props
+    Vector ambient_light = vec(3, 0.2f, 0.2f, 0.2f);
+    Vector diffuse_light = vec(3, 0.5f, 0.5f, 0.5f);
+    Vector specular_light = vec(3, 1.0f, 1.0f, 1.0f);
+
+    // Set light properties
+    set_vec(vertex_shader, "light.ambient",  ambient_light.data, glUniform3fv);
+    set_vec(vertex_shader, "light.diffuse",  diffuse_light.data, glUniform3fv); // darken diffuse light a bit
+    set_vec(vertex_shader, "light.specular", specular_light.data, glUniform3fv);
+    set_vec(vertex_shader, "light.position", light_pos.data, glUniform3fv);   
+    deallocate_matrices(3, ambient_light, diffuse_light, specular_light);
+
+    return;
+}
+
+void set_frustum(unsigned int shader, Matrix view, Matrix projection, Matrix model) {
+    // Use the light shader
+    glUseProgram(shader);
+
+    // Set the data for the vertex shader
+    set_matrix(shader, "view", view.data, glUniformMatrix4fv);
+    set_matrix(shader, "projection", projection.data, glUniformMatrix4fv); 
+    set_matrix(shader, "model", model.data, glUniformMatrix4fv);
+
+    return;
+}
+
+void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_shader, unsigned int VAO, unsigned int light_VAO) {
     // Set the camera parameters
     Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
     Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
@@ -119,54 +168,25 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_s
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        // Activate shader
-        glUseProgram(shaderProgram);
-
-        set_shader(shaderProgram, "viewPos", camera.camera_pos);
-
-        // Create the view matrix
-        Matrix view = look_at(camera);
-
-        // Create the projection matrix
-        Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
-
-        // Set the colour data for the light shader
-        Vector object_vec = vec(3, 1.0f, 0.5f, 0.31f);
-        Vector light_vec = vec(3, 1.0f, 1.0f, 1.0f);
-
-        set_shader(shaderProgram, "objectColor", object_vec);
-        set_shader(shaderProgram, "lightColor", light_vec);   
-
-        // Send the matrices to the shader (The bool param is about column or row majour order, respectively GL_FALSE and GL_TRUE)
-        set_shader(shaderProgram, "view", view);
-        set_shader(shaderProgram, "projection", projection);
-
-        Matrix model = create_identity_matrix(4);
-        set_shader(shaderProgram, "model", model);
-
-        // Pass the light pos
         Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
-        set_shader(shaderProgram, "lightPos", light_pos);
+        set_light_properties(vertex_shader, light_pos, camera.camera_pos);
+
+        // Create the frustum (view, projection and model matrices)
+        Matrix view = look_at(camera);
+        Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
+        Matrix model = create_identity_matrix(4);
+        set_frustum(vertex_shader, view, projection, model);
 
         // Render the cube
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // Use the light shader
-        glUseProgram(light_shader);
-
-        // Set the data for the vertex shader
-        set_shader(light_shader, "view", view);
-        set_shader(light_shader, "projection", projection);   
 
         // Set the light source 
         translate_mat(model, light_pos, &model);
         Vector scaling_vec = alloc_vector(0.2f, 3);
         scale_matrix(model, scaling_vec, &model); 
         deallocate_matrices(2, scaling_vec, light_pos);
-        
-        // Set the data for the vertex shader        
-        set_shader(light_shader, "model", model);
+        set_frustum(light_shader, view, projection, model);
 
         // Render the light cube
         glBindVertexArray(light_VAO);
@@ -186,11 +206,11 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_s
     return;
 }
 
-void terminate(unsigned int shaderProgram, unsigned int light_shader, unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
+void terminate(unsigned int vertex_shader, unsigned int light_shader, unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
     glDeleteVertexArrays(1, VAO);
     glDeleteVertexArrays(1, light_VAO);
     glDeleteBuffers(1, VBO);
-    glDeleteProgram(shaderProgram);
+    glDeleteProgram(vertex_shader);
     glDeleteProgram(light_shader);
     glfwTerminate();
     return;

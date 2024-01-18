@@ -13,25 +13,25 @@
 int main() {
     // Init the window and check the status of the operation
     GLFWwindow* window;
-    if ((window = initWindow(WIDTH, HEIGHT, "Game")) == NULL) {
+    if ((window = init_window(WIDTH, HEIGHT, "Game")) == NULL) {
         return -1;
     }
 
     DEBUG_INFO("Loaded window");
 
     // Init the shaders and check the status of the operation
-    unsigned int shaderProgram;
-    if ((shaderProgram = initShaders((const char*) "./include/shaders/vertex.hlsl", (const char*) "./include/shaders/fragment.hlsl")) == INT32_MAX) {
+    unsigned int vertex_shader;
+    if ((vertex_shader = init_shaders((const char*) "./include/shaders/vertex.glsl", (const char*) "./include/shaders/fragment.glsl")) == INT32_MAX) {
         return -1;
     }
 
     // Init the shaders and check the status of the operation
     unsigned int light_shader;
-    if ((light_shader = initShaders((const char*) "./include/shaders/light_vertex.hlsl", (const char*) "./include/shaders/light_shader.hlsl")) == INT32_MAX) {
+    if ((light_shader = init_shaders((const char*) "./include/shaders/light_vertex.glsl", (const char*) "./include/shaders/light_shader.glsl")) == INT32_MAX) {
         return -1;
     }
 
-    printf("DEBUG_INFO: Loaded shader program, shader: %u, light_shader: %u\n", shaderProgram, light_shader);
+    printf("DEBUG_INFO: Loaded shader program, shader: %u, light_shader: %u\n", vertex_shader, light_shader);
 
     // Load vertex
     unsigned int VBO, VAO, light_VAO;
@@ -39,11 +39,11 @@ int main() {
 
     DEBUG_INFO("Rendering...");        
 
-    render(window, shaderProgram, light_shader, VAO, light_VAO);
+    render(window, vertex_shader, light_shader, VAO, light_VAO);
 
     DEBUG_INFO("terminating the program...");
 
-    terminate(shaderProgram, light_shader, &VAO, &light_VAO, &VBO);
+    terminate(vertex_shader, light_shader, &VAO, &light_VAO, &VBO);
 
     return 0;
 }
