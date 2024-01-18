@@ -5,19 +5,21 @@
 #include "./matrix.h"
 #include "./utils.h"
 
-void scale_matrix(Vector scaling_vec, Matrix* dest) {
+void scale_matrix(Matrix scaling_mat, Vector scaling_vec, Matrix* dest) {
     unsigned int vec_size = VEC_SIZE(scaling_vec);
-    Matrix scaling_mat = create_identity_matrix(vec_size);
+    assert(vec_size >= 3);
 
-    for (unsigned int i = 0; i < vec_size; ++i) {
-        MAT_INDEX(scaling_mat, i, i) = VEC_INDEX(scaling_vec, i);
+    Matrix temp = alloc_matrix(0.0f, 1, 1);
+    copy_matrix(scaling_mat, &temp);
+
+    for (unsigned int row = 0; row < scaling_mat.rows; ++row) {
+        for (unsigned int col = 0; col < scaling_mat.cols; ++col) {
+            MAT_INDEX(temp, row, col) = MAT_INDEX(scaling_mat, row, col) * ((vec_size == col) ? 1.0f : VEC_INDEX(scaling_vec, col));
+        }
     }
 
-    // Copy the scaling mat
-    copy_matrix(scaling_mat, dest);
-
-    // Deallocate unused mat
-    deallocate_matrices(1, scaling_mat);
+    copy_matrix(temp, dest);
+    deallocate_matrices(1, temp);
 
     return;
 }
@@ -102,7 +104,6 @@ Matrix rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
     float a = angle;
     float c = cosf(a);
     float s = sinf(a);
-
 
     Vector axis = alloc_vector(0.0f, 1);
     normalize_vector(vec, &axis);
