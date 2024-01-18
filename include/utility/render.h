@@ -137,12 +137,12 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO) {
 
     while (!glfwWindowShouldClose(window)) {
         // Update the camera speed
-        update_camera_speed(&camera);
+        update_camera_speed(&camera, FALSE);
 
         update_camera_front(camera, get_mouse_position());
 
         // Handle user input
-        processInput(window, camera);
+        processInput(window, &camera);
 
         // Clean the window before rendering anything
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

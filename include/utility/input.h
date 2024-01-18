@@ -16,44 +16,56 @@
 #define get_mouse_position() refresh_mouse_position(0.0f, 0.0f, TRUE)
 #define get_scroll_position() refresh_scroll_position(0.0f, TRUE)   
 #define reset_angles(yaw, pitch) refresh_mouse_position(yaw, pitch, TRUE)
+#define GET_PRESSED_KEY(window, key) (glfwGetKey(window, key) == GLFW_PRESS)
 
 float* refresh_mouse_position(float x_offset, float y_offset, unsigned char ret);
 
-void processInput(GLFWwindow* window, Camera camera) {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+void processInput(GLFWwindow* window, Camera* camera) {
+    if (GET_PRESSED_KEY(window, GLFW_KEY_W)) {
         Vector temp = alloc_vector(0.0f, 1);
-        scalar_product_matrix(camera.camera_front, camera.camera_speed, &temp);
-        sum_matrices(2, &(camera.camera_pos), camera.camera_pos, temp);
+        scalar_product_matrix(camera -> camera_front, camera -> camera_speed, &temp);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         deallocate_matrices(1, temp);
-    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_S)) {
         Vector temp = alloc_vector(0.0f, 1);
-        scalar_product_matrix(camera.camera_front, -camera.camera_speed, &temp);
-        sum_matrices(2, &(camera.camera_pos), camera.camera_pos, temp);
+        scalar_product_matrix(camera -> camera_front, -camera -> camera_speed, &temp);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         deallocate_matrices(1, temp);
-    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        Vector temp = cross_product(camera.camera_front, camera.camera_up);
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_A)) {
+        Vector temp = cross_product(camera -> camera_front, camera -> camera_up);
         normalize_vector(temp, &temp);
-        scalar_product_matrix(temp, -camera.camera_speed, &temp);
-        sum_matrices(2, &(camera.camera_pos), camera.camera_pos, temp);
+        scalar_product_matrix(temp, -camera -> camera_speed, &temp);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         gc_dispose();
-    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        Vector temp = cross_product(camera.camera_front, camera.camera_up);
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_D)) {
+        Vector temp = cross_product(camera -> camera_front, camera -> camera_up);
         normalize_vector(temp, &temp);
-        scalar_product_matrix(temp, camera.camera_speed, &temp);
-        sum_matrices(2, &(camera.camera_pos), camera.camera_pos, temp);
+        scalar_product_matrix(temp, camera -> camera_speed, &temp);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         gc_dispose();
-    } else if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_UP)) {
+        Vector temp = vec(3, 0.0f, camera -> camera_speed, 0.0f);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
+        deallocate_matrices(1, temp);
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_DOWN)) {
+        Vector temp = vec(3, 0.0f, -(camera -> camera_speed), 0.0f);
+        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
+        deallocate_matrices(1, temp);
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(window, TRUE);
         printf("INPUT:KEY_PRESS_ESCAPE: closing the window...\n");
-    } else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_R)) {
         // Reset the angles
         reset_angles(-90.0f, 0.0f);
         // Reset the camera
+        deallocate_camera(*camera);
         Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
         Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
         Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
-        deallocate_camera(camera);
-        camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
+        *camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
+        // Reset the camera speed
+        update_camera_speed(camera, TRUE);
+        printf("INPUT:RESET_KEY_PRESS: resetting the camera...\n");
     }
 
     return;

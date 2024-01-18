@@ -26,9 +26,15 @@ void update_camera_front(Camera camera, float* mouse_pos) {
     return;
 }
 
-void update_camera_speed(Camera* camera) {
+void update_camera_speed(Camera* camera, unsigned char reset) {
     static float last_frame = 0.0f;
     static float delta_time = 1.0f;
+
+    if (reset) {
+        last_frame = 0.0f;
+        delta_time = 1.0f;
+    }
+
     float current_frame = glfwGetTime();
     camera -> camera_speed /= delta_time; 
     delta_time = current_frame - last_frame;
