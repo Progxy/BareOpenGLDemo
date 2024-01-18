@@ -26,49 +26,49 @@ void set_shader(unsigned int shader, const char* data_name, Matrix matrix) {
 }
 
 void loadVertex(unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f, 
-        0.5f, -0.5f, -0.5f,  
-        0.5f,  0.5f, -0.5f,  
-        0.5f,  0.5f, -0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+float vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-        -0.5f, -0.5f,  0.5f, 
-        0.5f, -0.5f,  0.5f,  
-        0.5f,  0.5f,  0.5f,  
-        0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f, 
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f, 
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-        0.5f,  0.5f,  0.5f,  
-        0.5f,  0.5f, -0.5f,  
-        0.5f, -0.5f, -0.5f,  
-        0.5f, -0.5f, -0.5f,  
-        0.5f, -0.5f,  0.5f,  
-        0.5f,  0.5f,  0.5f,  
+    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+    0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+    0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+    0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+    0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f, 
-        0.5f, -0.5f, -0.5f,  
-        0.5f, -0.5f,  0.5f,  
-        0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f, 
-        0.5f,  0.5f, -0.5f,  
-        0.5f,  0.5f,  0.5f,  
-        0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
-    };
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+    0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+    0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+};
 
     glGenVertexArrays(1, VAO);
     glGenBuffers(1, VBO);
@@ -80,8 +80,12 @@ void loadVertex(unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     glGenVertexArrays(1, light_VAO);
@@ -90,7 +94,7 @@ void loadVertex(unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     return;
@@ -118,6 +122,8 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_s
         // Activate shader
         glUseProgram(shaderProgram);
 
+        set_shader(shaderProgram, "viewPos", camera.camera_pos);
+
         // Create the view matrix
         Matrix view = look_at(camera);
 
@@ -138,6 +144,10 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_s
         Matrix model = create_identity_matrix(4);
         set_shader(shaderProgram, "model", model);
 
+        // Pass the light pos
+        Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
+        set_shader(shaderProgram, "lightPos", light_pos);
+
         // Render the cube
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -150,7 +160,6 @@ void render(GLFWwindow* window, unsigned int shaderProgram, unsigned int light_s
         set_shader(light_shader, "projection", projection);   
 
         // Set the light source 
-        Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
         translate_mat(model, light_pos, &model);
         Vector scaling_vec = alloc_vector(0.2f, 3);
         scale_matrix(model, scaling_vec, &model); 
