@@ -104,12 +104,12 @@ float vertices[] = {
     return;
 }
 
-void set_light_properties(unsigned int vertex_shader, Vector light_pos, Vector view_pos) {
+void set_light_properties(unsigned int vertex_shader, Camera camera) {
     // Use the light shader
     glUseProgram(vertex_shader);
 
     // Set the view position
-    set_vec(vertex_shader, "viewPos", view_pos.data, glUniform3fv);
+    set_vec(vertex_shader, "viewPos", camera.camera_pos.data, glUniform3fv);
 
     // Set the data for the material props
     Vector amb_diff_vec = vec(3, 1.0f, 0.5f, 0.31f);
@@ -122,17 +122,62 @@ void set_light_properties(unsigned int vertex_shader, Vector light_pos, Vector v
     set_value(vertex_shader, "material.shininess", 32.0f, glUniform1f);
     deallocate_matrices(2, amb_diff_vec, specular_vec);
 
-    // Set the data for the light props
-    Vector ambient_light = vec(3, 0.2f, 0.2f, 0.2f);
-    Vector diffuse_light = vec(3, 0.5f, 0.5f, 0.5f);
-    Vector specular_light = vec(3, 1.0f, 1.0f, 1.0f);
+    // Set the direction light
+    Vector ambient_light = vec(3, 0.05f, 0.05f, 0.05f);
+    Vector diffuse_light = vec(3, 0.4f, 0.4f, 0.4f);
+    Vector specular_light = vec(3, 0.5f, 0.5f, 0.5f);
+    Vector light_dir = vec(3, -0.2f, -1.0f, -0.3f);
 
-    // Set light properties
-    set_vec(vertex_shader, "light.ambient",  ambient_light.data, glUniform3fv);
-    set_vec(vertex_shader, "light.diffuse",  diffuse_light.data, glUniform3fv); // darken diffuse light a bit
-    set_vec(vertex_shader, "light.specular", specular_light.data, glUniform3fv);
-    set_vec(vertex_shader, "light.position", light_pos.data, glUniform3fv);   
-    deallocate_matrices(3, ambient_light, diffuse_light, specular_light);
+    set_vec(vertex_shader, "dirLight.direction", light_dir.data, glUniform3fv);
+    set_vec(vertex_shader, "dirLight.ambient", ambient_light.data, glUniform3fv);
+    set_vec(vertex_shader, "dirLight.diffuse", diffuse_light.data, glUniform3fv);
+    set_vec(vertex_shader, "dirLight.specular", specular_light.data, glUniform3fv);
+    deallocate_matrices(4, ambient_light, diffuse_light, specular_light, light_dir);
+    
+    Vector point_light_pos[] = {
+        vec(3,  0.7f,  0.2f,  2.0f),
+        vec(3,  2.3f, -3.3f, -4.0f),
+        vec(3, -4.0f,  2.0f, -12.0f),
+        vec(3,  0.0f,  0.0f, -3.0f)
+    };
+
+    Vector ambient_point_light = vec(3, 0.05f, 0.05f, 0.05f);
+    Vector diffuse_point_light = vec(3, 0.4f, 0.4f, 0.4f);
+    Vector specular_point_light = vec(3, 0.5f, 0.5f, 0.5f);
+
+    // Set the point lights
+    char* data_name_str = (char*) calloc(1, sizeof(char));
+    for (unsigned int i = 0; i < 4; ++i) {
+        set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].position"), data_name_str), point_light_pos[i].data, glUniform3fv);
+        set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].ambient"), data_name_str), ambient_point_light.data, glUniform3fv);
+        set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].diffuse"), data_name_str), diffuse_point_light.data, glUniform3fv);
+        set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].specular"), data_name_str), specular_point_light.data, glUniform3fv);
+        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].constant"), data_name_str), 1.0f, glUniform1f);
+        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].linear"), data_name_str), 0.09f, glUniform1f);
+        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].quadratic"), data_name_str), 0.032f, glUniform1f);
+        deallocate_matrices(1, point_light_pos[i]);
+    }
+
+    free(data_name_str);
+
+    deallocate_matrices(3, ambient_point_light, diffuse_point_light, specular_point_light);
+
+    // Set the spot light
+    Vector ambient_spot_light = vec(3, 0.0f, 0.0f, 0.0f); 
+    Vector diffuse_spot_light = vec(3, 1.0f, 1.0f, 1.0f);
+    Vector specular_spot_light = vec(3, 1.0f, 1.0f, 1.0f);
+
+    set_vec(vertex_shader, "spotLight.position", camera.camera_pos.data, glUniform3fv);
+    set_vec(vertex_shader, "spotLight.direction", camera.camera_front.data, glUniform3fv);
+    set_vec(vertex_shader, "spotLight.ambient", ambient_spot_light.data, glUniform3fv);
+    set_vec(vertex_shader, "spotLight.diffuse", diffuse_spot_light.data, glUniform3fv);
+    set_vec(vertex_shader, "spotLight.specular", specular_spot_light.data, glUniform3fv);
+    set_value(vertex_shader, "spotLight.constant", 1.0f, glUniform1f);
+    set_value(vertex_shader, "spotLight.linear", 0.09f, glUniform1f);
+    set_value(vertex_shader, "spotLight.quadratic", 0.032f, glUniform1f);
+    set_value(vertex_shader, "spotLight.cutOff", cosf(deg_to_rad(12.5f)), glUniform1f);
+    set_value(vertex_shader, "spotLight.outerCutOff", cosf(deg_to_rad(15.0f)), glUniform1f);    
+    deallocate_matrices(3, ambient_spot_light, diffuse_spot_light, specular_spot_light);
 
     return;
 }
@@ -168,20 +213,34 @@ void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_s
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
-        set_light_properties(vertex_shader, light_pos, camera.camera_pos);
+        set_light_properties(vertex_shader, camera);
 
         // Create the frustum (view, projection and model matrices)
         Matrix view = look_at(camera);
         Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
         Matrix model = create_identity_matrix(4);
         set_frustum(vertex_shader, view, projection, model);
+        deallocate_matrices(1, model);
 
-        // Render the cube
+        // Render the cubes
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for (unsigned int i = 0; i < 10; ++i) {
+            model = create_identity_matrix(4);
+            Vector cube_position = vec(3, cosf(deg_to_rad((i + 1) * 36.0f)) * 5.0f, 0.0f, -sinf(deg_to_rad((i + 1) * 36.0f)) * 5.0f);
+            translate_mat(model, cube_position, &model);
+            float angle = 20.0f * i;
+            Vector rotation_vec = vec(3, 1.0f, 0.3f, 0.5f);
+            rotate_matrix(model, deg_to_rad(angle), rotation_vec, &model);
+            set_matrix(vertex_shader, "model", model.data, glUniformMatrix4fv);
+            deallocate_matrices(1, model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // Set the light source 
+        Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
+        model = create_identity_matrix(4);
         translate_mat(model, light_pos, &model);
         Vector scaling_vec = alloc_vector(0.2f, 3);
         scale_matrix(model, scaling_vec, &model); 

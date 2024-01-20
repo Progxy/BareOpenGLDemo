@@ -3,6 +3,7 @@
 
 #define __USE_MISC 
 #include <math.h>
+#include <stdarg.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -32,5 +33,65 @@ void print_float_bits(float* val) {
     return;
 }
 
+char* num_to_str(unsigned int val) {
+    unsigned int digits = 0;
+    long double copy_val = val;
+    
+    while (copy_val >= 1.0L) {
+        copy_val /= 10.0L;
+        digits++;
+    }
+    
+    digits = (!digits) ? 1 : digits;
+    char* str = (char*) calloc(digits, sizeof(char));
+    if (!digits) {
+        str[0] = '0';
+    }
+    
+    for (int i = digits - 1, ind = 0; i >= 0; --i, ++ind) {
+        char digit = ((unsigned int) (val / powl(10, i)) % 10);
+        str[ind] = digit + 48;
+        val -= digit * powl(10, i);
+    }
+
+    return str;
+}
+
+
+void concat(unsigned int count, char** str, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    unsigned int str_ind = 0;
+    *str = (char*) realloc(*str, 150);
+
+    for (unsigned int i = 0; i < count; ++i) {
+        char* data;
+
+        if (format[i] == 's') {
+            data = va_arg(args, char*);
+        } else {
+            unsigned int val = va_arg(args, unsigned int);
+            data = num_to_str(val);
+        }
+
+        for (unsigned int ind = 0; data[ind] != '\0'; ++ind, str_ind++) {
+            (*str)[str_ind] = data[ind];
+        }
+
+        if (format[i] == 'u') {
+            free(data);
+        }
+
+    }
+
+    va_end(args);
+
+    // Add the string terminator
+    (*str)[str_ind] = '\0';
+    *str = (char*) realloc(*str, str_ind + 1);
+
+    return;
+}
 
 #endif // _UTILS_H_

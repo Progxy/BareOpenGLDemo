@@ -97,7 +97,7 @@ Matrix perspective_matrix(float fov, float aspect, float near, float far) {
     return perspective_mat;
 }
 
-Matrix rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
+void rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
     unsigned int vec_size = VEC_SIZE(vec);
     assert(vec_size == 3);
 
@@ -173,7 +173,7 @@ Matrix rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
     // Deallocate result matrix
     deallocate_matrices(1, result);
 
-    return result;
+    return;
 }
 
 void translate_mat(Matrix src, Vector vec, Matrix* dest) {
