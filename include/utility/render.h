@@ -239,13 +239,11 @@ void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_s
         }
 
         // Set the light source 
-        Vector light_pos = vec(3, 1.2f, 1.0f, 2.0f);
-        model = create_identity_matrix(4);
-        translate_mat(model, light_pos, &model);
+        Matrix light_model = create_identity_matrix(4);
         Vector scaling_vec = alloc_vector(0.2f, 3);
-        scale_matrix(model, scaling_vec, &model); 
-        deallocate_matrices(2, scaling_vec, light_pos);
-        set_frustum(light_shader, view, projection, model);
+        scale_matrix(light_model, scaling_vec, &light_model); 
+        deallocate_matrices(1, scaling_vec);
+        set_frustum(light_shader, view, projection, light_model);
 
         // Render the light cube
         glBindVertexArray(light_VAO);
