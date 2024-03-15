@@ -9,6 +9,8 @@
 #include "./include/utility/loader.h"
 #include "./include/utility/input.h"
 #include "./include/utility/render.h"
+#define _USE_IMAGE_LIBRARY_
+#include "./libs/image_io.h"
 
 int main() {
     // Init the window and check the status of the operation
@@ -44,6 +46,8 @@ int main() {
     DEBUG_INFO("terminating the program...");
 
     terminate(vertex_shader, light_shader, &VAO, &light_VAO, &VBO);
+
+    Image image = read_file("./assets");
 
     return 0;
 }

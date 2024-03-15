@@ -8,7 +8,7 @@ CC = gcc
 COMPILER_FLAGS = $(shell pkg-config --cflags glfw3) -std=c11 -Wall -Wextra 
 
 #LIBS specifies the additional libraries
-LIBS = $(shell pkg-config --libs glfw3) -ldl -lm
+LIBS = $(shell pkg-config --libs glfw3) -ldl -lm -L"./libs" -lidl
 
 # OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = -o ./out/game
