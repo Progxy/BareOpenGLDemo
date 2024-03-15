@@ -4,13 +4,13 @@
 #include "./include/glad/glad.h"
 #include "./include/GLFW/glfw3.h"
 #define _STDLIB_DEF_
+#define _USE_IMAGE_LIBRARY_
+#include "./libs/image_io.h"
 #include "./include/utility/utils.h"
 #include "./include/utility/parser.h"
 #include "./include/utility/loader.h"
 #include "./include/utility/input.h"
 #include "./include/utility/render.h"
-#define _USE_IMAGE_LIBRARY_
-#include "./libs/image_io.h"
 
 int main() {
     // Init the window and check the status of the operation
@@ -47,7 +47,11 @@ int main() {
 
     terminate(vertex_shader, light_shader, &VAO, &light_VAO, &VBO);
 
-    Image image = read_file("./assets");
+    printf("DEBUG: decoding the image...\n");
+    Image image = decode_image("./assets/container.jpeg");
+
+    printf("DEBUG: deallocating the image...\n");
+    deallocate_image(image);
 
     return 0;
 }
