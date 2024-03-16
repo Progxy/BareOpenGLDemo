@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "./utils.h"
 #include "./matrix.h"
 
 typedef struct Vertex {
@@ -28,7 +29,7 @@ typedef struct Array {
 
 #define GET_ELEMENT(type, arr, index) *((type*) arr.struct_data[index])
 
-void append_array(Array* arr, void* data) {
+void append_element(Array* arr, void* data) {
     arr -> struct_data = (void**) realloc(arr -> struct_data, sizeof(void*) * (arr -> size + 1));
     (arr -> struct_data)[arr -> size] = data;
     (arr -> size)++;
@@ -39,6 +40,12 @@ Array allocate_arr() {
     Array arr = { .size = 0 };
     arr.struct_data = (void**) calloc(arr.size, sizeof(void*));
     return arr;
+}
+
+void deallocate_arr(Array arr) {
+    DEBUG_INFO("deallocating array...");
+    free(arr.struct_data);
+    return;
 }
 
 typedef struct Mesh {
