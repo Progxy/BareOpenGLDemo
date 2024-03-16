@@ -12,7 +12,7 @@
 
 #include <string.h>
 #include "./utils.h"
-#include "./matrix.h"
+#include "./model_decoder.h"
 
 typedef struct Vertex {
     Vector position;
@@ -30,33 +30,6 @@ typedef struct Shader {
     unsigned int fragment_shader;
 } Shader;
 
-typedef struct Array {
-    void** struct_data;
-    unsigned int size;
-} Array;
-
-#define GET_ELEMENT(type, arr, index) (*((type*) arr.struct_data[index]))
-#define TO_STRING(num) (char) num + 48
-
-void append_element(Array* arr, void* data) {
-    arr -> struct_data = (void**) realloc(arr -> struct_data, sizeof(void*) * (arr -> size + 1));
-    (arr -> struct_data)[arr -> size] = data;
-    (arr -> size)++;
-    return;
-}
-
-Array allocate_arr() {
-    Array arr = { .size = 0 };
-    arr.struct_data = (void**) calloc(arr.size, sizeof(void*));
-    return arr;
-}
-
-void deallocate_arr(Array arr) {
-    DEBUG_INFO("deallocating array...");
-    free(arr.struct_data);
-    return;
-}
-
 typedef struct Mesh {
     unsigned int* VAO;
     unsigned int* VBO;
@@ -65,6 +38,11 @@ typedef struct Mesh {
     Array textures;
     Array indices;
 } Mesh;
+
+typedef struct Model {
+    Array meshes;
+    const char* directory;
+} Model;    
 
 void setup_mesh(Mesh mesh) {
     glGenVertexArrays(1, mesh.VAO);
@@ -125,29 +103,30 @@ void deallocate_mesh(Mesh mesh) {
     return;
 }
 
-void draw(Shader shader, Mesh mesh) {
+void draw_mesh(Shader shader, Mesh mesh) {
     unsigned int diffuse_nr = 1;
     unsigned int specular_nr = 1;
-    
+
     for(unsigned int i = 0; i < mesh.textures.size; i++) {
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
         // retrieve texture number (the N in diffuse_textureN)
         char* number;
-        char* name = GET_ELEMENT(Texture, mesh.textures, i).type;
+        char* name = (char*) GET_ELEMENT(Texture, mesh.textures, i).type;
         if (!strcmp(name, "texture_diffuse")) {
-            number = TO_STRING(diffuse_nr);
+            number = num_to_str(diffuse_nr);
             diffuse_nr++;
         } else if (!strcmp(name, "texture_specular")) {
-            number = TO_STRING(specular_nr);
+            number = num_to_str(specular_nr);
             specular_nr++;
         }
 
         char* material_id = (char*) calloc(1, sizeof(char));
-        concat(3, *material_id, "sss", "material.", name, number);
+        concat(3, &material_id, "sss", "material.", name, number);
         set_int(shader.vertex_shader, material_id, i, glUniform1i);
         glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(Texture, mesh.textures, i).id);
         free(material_id);
+        free(number);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -157,6 +136,13 @@ void draw(Shader shader, Mesh mesh) {
     glDrawElements(GL_TRIANGLES, mesh.indices.size, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
+    return;
+}
+
+void draw_model(Shader shader, Model model) {
+    for (unsigned int i = 0; i < model.meshes.size; i++) {
+        draw_mesh(shader, GET_ELEMENT(Mesh, model.meshes, i));
+    }
     return;
 }
 

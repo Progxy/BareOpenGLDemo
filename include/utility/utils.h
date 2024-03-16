@@ -12,6 +12,31 @@
 #define SENSITIVITY 0.1f
 #define DEBUG_INFO(debug_str) printf("DEBUG_INFO: %s\n", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
+#define GET_ELEMENT(type, arr, index) (*((type*) arr.struct_data[index]))
+
+typedef struct Array {
+    void** struct_data;
+    unsigned int size;
+} Array;
+
+void append_element(Array* arr, void* data) {
+    arr -> struct_data = (void**) realloc(arr -> struct_data, sizeof(void*) * (arr -> size + 1));
+    (arr -> struct_data)[arr -> size] = data;
+    (arr -> size)++;
+    return;
+}
+
+Array allocate_arr() {
+    Array arr = { .size = 0 };
+    arr.struct_data = (void**) calloc(arr.size, sizeof(void*));
+    return arr;
+}
+
+void deallocate_arr(Array arr) {
+    DEBUG_INFO("deallocating array...");
+    free(arr.struct_data);
+    return;
+}
 
 void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
     unsigned int object = glGetUniformLocation(shader, obj_name);

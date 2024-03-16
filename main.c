@@ -12,6 +12,7 @@
 #include "./include/utility/input.h"
 #include "./include/utility/render.h"
 #include "./include/utility/texture.h"
+#include "./include/utility/model.h"
 
 int main() {
     // Init the window and check the status of the operation
