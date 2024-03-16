@@ -10,7 +10,7 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define SENSITIVITY 0.1f
-#define DEBUG_INFO(debug_str) printf("DEBUG: %s\n", debug_str)
+#define DEBUG_INFO(debug_str) printf("DEBUG_INFO: %s\n", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 
 float deg_to_rad(float deg) {

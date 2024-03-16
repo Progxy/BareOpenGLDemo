@@ -43,7 +43,7 @@ void processInput(GLFWwindow* window, Camera* camera) {
         scalar_product_matrix(temp, camera -> camera_speed, &temp);
         sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         gc_dispose();
-    } else if (GET_PRESSED_KEY(window, GLFW_KEY_UP)) {
+    } else if (GET_PRESSED_KEY(window, GLFW_KEY_UP) || GET_PRESSED_KEY(window, GLFW_KEY_SPACE)) {
         Vector temp = vec(3, 0.0f, camera -> camera_speed, 0.0f);
         sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
         deallocate_matrices(1, temp);

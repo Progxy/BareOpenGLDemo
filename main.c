@@ -11,6 +11,7 @@
 #include "./include/utility/loader.h"
 #include "./include/utility/input.h"
 #include "./include/utility/render.h"
+#include "./include/utility/texture.h"
 
 int main() {
     // Init the window and check the status of the operation
@@ -39,19 +40,21 @@ int main() {
     unsigned int VBO, VAO, light_VAO;
     loadVertex(&VAO, &light_VAO, &VBO);
 
+    // Load textures
+    unsigned int diffuse_map;
+    unsigned int specular_map;
+    if (load_textures(vertex_shader, &diffuse_map, &specular_map)) {
+        printf("ERROR: an error occured while loading the textures!\n");
+        return 1;
+    }
+
     DEBUG_INFO("Rendering...");        
 
-    render(window, vertex_shader, light_shader, VAO, light_VAO);
+    render(window, vertex_shader, light_shader, VAO, light_VAO, diffuse_map, specular_map);
 
     DEBUG_INFO("terminating the program...");
 
     terminate(vertex_shader, light_shader, &VAO, &light_VAO, &VBO);
-
-    printf("DEBUG: decoding the image...\n");
-    Image image = decode_image("./assets/container.jpeg");
-
-    printf("DEBUG: deallocating the image...\n");
-    deallocate_image(image);
 
     return 0;
 }

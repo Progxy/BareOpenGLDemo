@@ -24,55 +24,56 @@ void set_vec(unsigned int shader, const char* obj_name, float* obj_data, void (*
     return (*uniform_vec)(object, 1, obj_data);
 }
 
-void set_value(unsigned int shader, const char* obj_name, float obj_data, void (*uniform_value)(GLint, GLfloat)) {
+void set_float(unsigned int shader, const char* obj_name, float obj_data, void (*uniform_value)(GLint, GLfloat)) {
     unsigned int object = glGetUniformLocation(shader, obj_name);
     return (*uniform_value)(object, obj_data);
 }
 
 void loadVertex(unsigned int* VAO, unsigned int* light_VAO, unsigned int* VBO) {
-float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    float vertices[] = {
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-    0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-    0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-};
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
 
     glGenVertexArrays(1, VAO);
     glGenBuffers(1, VBO);
@@ -84,12 +85,16 @@ float vertices[] = {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // texture attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     glGenVertexArrays(1, light_VAO);
@@ -98,7 +103,7 @@ float vertices[] = {
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     return;
@@ -111,16 +116,8 @@ void set_light_properties(unsigned int vertex_shader, Camera camera) {
     // Set the view position
     set_vec(vertex_shader, "viewPos", camera.camera_pos.data, glUniform3fv);
 
-    // Set the data for the material props
-    Vector amb_diff_vec = vec(3, 1.0f, 0.5f, 0.31f);
-    Vector specular_vec = vec(3, 0.5f, 0.5f, 0.5f);
-
     // Set material properties
-    set_vec(vertex_shader, "material.ambient", amb_diff_vec.data, glUniform3fv);
-    set_vec(vertex_shader, "material.diffuse", amb_diff_vec.data, glUniform3fv);
-    set_vec(vertex_shader, "material.specular", specular_vec.data, glUniform3fv);
-    set_value(vertex_shader, "material.shininess", 32.0f, glUniform1f);
-    deallocate_matrices(2, amb_diff_vec, specular_vec);
+    set_float(vertex_shader, "material.shininess", 32.0f, glUniform1f);
 
     // Set the direction light
     Vector ambient_light = vec(3, 0.05f, 0.05f, 0.05f);
@@ -152,9 +149,9 @@ void set_light_properties(unsigned int vertex_shader, Camera camera) {
         set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].ambient"), data_name_str), ambient_point_light.data, glUniform3fv);
         set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].diffuse"), data_name_str), diffuse_point_light.data, glUniform3fv);
         set_vec(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].specular"), data_name_str), specular_point_light.data, glUniform3fv);
-        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].constant"), data_name_str), 1.0f, glUniform1f);
-        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].linear"), data_name_str), 0.09f, glUniform1f);
-        set_value(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].quadratic"), data_name_str), 0.032f, glUniform1f);
+        set_float(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].constant"), data_name_str), 1.0f, glUniform1f);
+        set_float(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].linear"), data_name_str), 0.09f, glUniform1f);
+        set_float(vertex_shader, (concat(3, &data_name_str, "sus", "pointLights[", i, "].quadratic"), data_name_str), 0.032f, glUniform1f);
         deallocate_matrices(1, point_light_pos[i]);
     }
 
@@ -172,11 +169,11 @@ void set_light_properties(unsigned int vertex_shader, Camera camera) {
     set_vec(vertex_shader, "spotLight.ambient", ambient_spot_light.data, glUniform3fv);
     set_vec(vertex_shader, "spotLight.diffuse", diffuse_spot_light.data, glUniform3fv);
     set_vec(vertex_shader, "spotLight.specular", specular_spot_light.data, glUniform3fv);
-    set_value(vertex_shader, "spotLight.constant", 1.0f, glUniform1f);
-    set_value(vertex_shader, "spotLight.linear", 0.09f, glUniform1f);
-    set_value(vertex_shader, "spotLight.quadratic", 0.032f, glUniform1f);
-    set_value(vertex_shader, "spotLight.cutOff", cosf(deg_to_rad(12.5f)), glUniform1f);
-    set_value(vertex_shader, "spotLight.outerCutOff", cosf(deg_to_rad(15.0f)), glUniform1f);    
+    set_float(vertex_shader, "spotLight.constant", 1.0f, glUniform1f);
+    set_float(vertex_shader, "spotLight.linear", 0.09f, glUniform1f);
+    set_float(vertex_shader, "spotLight.quadratic", 0.032f, glUniform1f);
+    set_float(vertex_shader, "spotLight.cutOff", cosf(deg_to_rad(12.5f)), glUniform1f);
+    set_float(vertex_shader, "spotLight.outerCutOff", cosf(deg_to_rad(15.0f)), glUniform1f);    
     deallocate_matrices(3, ambient_spot_light, diffuse_spot_light, specular_spot_light);
 
     return;
@@ -194,7 +191,7 @@ void set_frustum(unsigned int shader, Matrix view, Matrix projection, Matrix mod
     return;
 }
 
-void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_shader, unsigned int VAO, unsigned int light_VAO) {
+void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_shader, unsigned int VAO, unsigned int light_VAO, unsigned int diffuse_map, unsigned int specular_map) {
     // Set the camera parameters
     Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
     Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
@@ -221,6 +218,14 @@ void render(GLFWwindow* window, unsigned int vertex_shader, unsigned int light_s
         Matrix model = create_identity_matrix(4);
         set_frustum(vertex_shader, view, projection, model);
         deallocate_matrices(1, model);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuse_map);
+
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specular_map);    
 
         // Render the cubes
         glBindVertexArray(VAO);
