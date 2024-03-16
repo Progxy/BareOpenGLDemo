@@ -57,8 +57,8 @@ typedef struct Mesh {
     Array indices;
 } Mesh;
 
+void setupMesh(Mesh mesh);
 Mesh create_mesh(Array vertices, Array indices, Array textures);
 void draw(Shader* shader);
-void setupMesh();
 
 #endif //_MODEL_H_
