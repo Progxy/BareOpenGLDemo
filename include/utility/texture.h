@@ -7,17 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "./GLFW/glfw3.h"
-#include "./input.h"
 
 #endif //_STDLIB_DEF_
 
 #define _USE_IMAGE_LIBRARY_
 #include "../../libs/image_io.h"
-
-void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
-    unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_value)(object, obj_data);
-}
+#include "./utils.h"
 
 void load_texture(const char* file_path, unsigned int* texture_id) {
     glGenTextures(1, texture_id);

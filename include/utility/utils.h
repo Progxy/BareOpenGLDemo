@@ -13,6 +13,11 @@
 #define DEBUG_INFO(debug_str) printf("DEBUG_INFO: %s\n", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 
+void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
+    unsigned int object = glGetUniformLocation(shader, obj_name);
+    return (*uniform_value)(object, obj_data);
+}
+
 float deg_to_rad(float deg) {
     return deg * (M_PI / 180);
 }
