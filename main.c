@@ -29,33 +29,15 @@ int main() {
         return -1;
     }
 
-    // Init the shaders and check the status of the operation
-    unsigned int light_shader;
-    if ((light_shader = init_shaders((const char*) "./include/shaders/light_vertex.glsl", (const char*) "./include/shaders/light_shader.glsl")) == INT32_MAX) {
-        return -1;
-    }
-
-    printf("DEBUG_INFO: Loaded shader program, shader: %u, light_shader: %u\n", vertex_shader, light_shader);
-
-    // Load vertex
-    unsigned int VBO, VAO, light_VAO;
-    loadVertex(&VAO, &light_VAO, &VBO);
-
-    // Load textures
-    unsigned int diffuse_map;
-    unsigned int specular_map;
-    if (load_textures(vertex_shader, &diffuse_map, &specular_map)) {
-        printf("ERROR: an error occured while loading the textures!\n");
-        return 1;
-    }
+    printf("DEBUG_INFO: Loaded shader program, shader: %u\n", vertex_shader);
 
     DEBUG_INFO("Rendering...");        
 
-    render(window, vertex_shader, light_shader, VAO, light_VAO, diffuse_map, specular_map);
+    render(window, vertex_shader);
 
     DEBUG_INFO("terminating the program...");
 
-    terminate(vertex_shader, light_shader, &VAO, &light_VAO, &VBO);
+    terminate(vertex_shader);
 
     return 0;
 }

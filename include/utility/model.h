@@ -28,11 +28,6 @@ typedef struct ModelTexture {
     char* path;
 } ModelTexture;  
 
-typedef struct Shader {
-    unsigned int vertex_shader;
-    unsigned int fragment_shader;
-} Shader;
-
 typedef struct ModelMesh {
     unsigned int* VAO;
     unsigned int* VBO;
@@ -106,9 +101,12 @@ void deallocate_mesh(ModelMesh mesh) {
     return;
 }
 
-void draw_mesh(Shader shader, ModelMesh mesh) {
-    unsigned int diffuse_nr = 1;
-    unsigned int specular_nr = 1;
+void draw_mesh(unsigned int shader, ModelMesh mesh) {
+    unsigned int base_color_nr = 1;
+    unsigned int metallic_roughness_nr = 1;
+    unsigned int normal_nr = 1;
+    unsigned int occlusion_nr = 1;
+    unsigned int emissive_nr = 1;
 
     for(unsigned int i = 0; i < mesh.textures.count; i++) {
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
@@ -116,17 +114,26 @@ void draw_mesh(Shader shader, ModelMesh mesh) {
         // retrieve texture number (the N in diffuse_textureN)
         char* number;
         char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh.textures, i) -> type);
-        if (!strcmp(name, "texture_diffuse")) {
-            number = num_to_str(diffuse_nr);
-            diffuse_nr++;
-        } else if (!strcmp(name, "texture_specular")) {
-            number = num_to_str(specular_nr);
-            specular_nr++;
+        if (!strcmp(name, "base_color_texture")) {
+            number = num_to_str(base_color_nr);
+            base_color_nr++;
+        } else if (!strcmp(name, "metallic_roughness_texture")) {
+            number = num_to_str(metallic_roughness_nr);
+            metallic_roughness_nr++;
+        } else if (!strcmp(name, "normal_texture")) {
+            number = num_to_str(normal_nr);
+            normal_nr++;
+        } else if (!strcmp(name, "occlusion_texture")) {
+            number = num_to_str(occlusion_nr);
+            occlusion_nr++;
+        } else if (!strcmp(name, "emissive_texture")) {
+            number = num_to_str(emissive_nr);
+            emissive_nr++;
         }
 
         char* material_id = (char*) calloc(1, sizeof(char));
         concat(3, &material_id, "sss", "material.", name, number);
-        set_int(shader.vertex_shader, material_id, i, glUniform1i);
+        set_int(shader, material_id, i, glUniform1i);
         glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh.textures, i) -> id);
         free(material_id);
         free(number);
@@ -142,7 +149,7 @@ void draw_mesh(Shader shader, ModelMesh mesh) {
     return;
 }
 
-void draw_model(Shader shader, Model model) {
+void draw_model(unsigned int shader, Model model) {
     for (unsigned int i = 0; i < model.meshes.count; i++) {
         draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -239,21 +246,20 @@ void process_node(Array* meshes, Scene scene, Node node) {
     return;
 }
 
-void load_model(char* path) {
+Model load_model(char* path) {
+    Model model = {0};
     Scene scene = decode_gltf(path);
     
     if (scene.meshes == NULL) {
         printf("ERROR: error while decoding the model.\n");
-        return;
+        return model;
     } 
 
-    Model model = {0};
     model.directory = path; // remove the last part of the path 
     model.meshes = init_arr();
-
     process_node(&(model.meshes), scene, scene.root_node);
 
-    return;
+    return model;
 }
 
 #endif //_MODEL_H_
