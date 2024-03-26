@@ -15,24 +15,9 @@
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 #define GET_ELEMENT(type, arr, index) ((type) (((arr).data)[index]))
 
-Array init_arr() {
-    Array arr = (Array) { .count = 0 };
-    arr.data = (void**) calloc(1, sizeof(void*));
-    return arr;
-}
-
-void append_element(Array* arr, void* element) {
-    arr -> data = (void**) realloc(arr -> data, sizeof(void*) * (arr -> count + 1));
-    (arr -> data)[arr -> count] = element;
-    (arr -> count)++;
-    return;
-}
-
-void deallocate_arr(Array arr) {
-    DEBUG_INFO("deallocating array...\n");
-    free(arr.data);
-    return;
-}
+Array init_arr();
+void append_element(Array* arr, void* element);
+void deallocate_arr(Array arr);
 
 void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
     unsigned int object = glGetUniformLocation(shader, obj_name);
