@@ -13,6 +13,7 @@
 #include <string.h>
 #include "./utils.h"
 #include "./matrix.h"
+#include "./texture.h"
 #include "../../libs/gltf_header.h"
 
 typedef struct Vertex {
@@ -23,7 +24,8 @@ typedef struct Vertex {
 
 typedef struct ModelTexture {
     unsigned int id;
-    const char* type;
+    char* type;
+    char* path;
 } ModelTexture;  
 
 typedef struct Shader {
@@ -168,7 +170,15 @@ static float* get_element_as_float(ArrayExtended arr_ext, unsigned int index) {
     return ((float*) data);
 }
 
-ModelMesh process_mesh(Mesh mesh) {
+ModelTexture* process_texture(Texture texture, char* type) {
+    ModelTexture* model_texture = (ModelTexture*) calloc(1, sizeof(ModelTexture));
+    load_texture(texture.texture_path, &(model_texture -> id));
+    model_texture -> type = type;
+    model_texture -> path = texture.texture_path;
+    return model_texture;
+}
+
+ModelMesh process_mesh(Mesh mesh, Scene scene) {
     ModelMesh model_mesh = {0};
     model_mesh.vertices = init_arr();
     model_mesh.textures = init_arr();
@@ -205,13 +215,20 @@ ModelMesh process_mesh(Mesh mesh) {
         }
     }
 
+    Material material = scene.materials[mesh.material_index];
+    if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture"));
+    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture"));    
+    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.normal_texture.texture, "normal_texture"));    
+    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.occlusion_texture.texture, "occlusion_texture"));    
+    if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.emissive_texture, "emissive_texture"));
+
     return model_mesh;
 }
 
 void process_node(Array* meshes, Scene scene, Node node) {
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         Mesh mesh = scene.meshes[*GET_ELEMENT(unsigned int*, node.meshes_indices, i)];
-        ModelMesh model_mesh = process_mesh(mesh);
+        ModelMesh model_mesh = process_mesh(mesh, scene);
         append_element(meshes, &model_mesh);
     }
 
