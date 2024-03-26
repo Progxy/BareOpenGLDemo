@@ -10,5 +10,8 @@ LIBS = -L"./libs" $(shell pkg-config --libs glfw3) -ldl -lm -lidl -lgltf
 # OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = -o ./out/game
 
-all : $(OBJS)
+game : $(OBJS)
 	gcc $(OBJS) $(COMPILER_FLAGS) $(LIBS) $(OBJ_NAME)
+
+debug : $(OBJS)
+	gcc $(OBJS) -g $(COMPILER_FLAGS) $(LIBS) $(OBJ_NAME)

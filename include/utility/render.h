@@ -48,7 +48,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
     Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
-    Model element = load_model("../assets/survival_guitar_backpack");
+    Model element = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
 
     while (!glfwWindowShouldClose(window)) {
         // Update the camera speed
