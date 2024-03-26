@@ -20,31 +20,31 @@ typedef struct Vertex {
     Vector tex_coords;
 } Vertex;
 
-typedef struct Texture {
+typedef struct ModelTexture {
     unsigned int id;
     const char* type;
-} Texture;  
+} ModelTexture;  
 
 typedef struct Shader {
     unsigned int vertex_shader;
     unsigned int fragment_shader;
 } Shader;
 
-typedef struct Mesh {
+typedef struct ModelMesh {
     unsigned int* VAO;
     unsigned int* VBO;
     unsigned int* EBO;
     Array vertices;
     Array textures;
     Array indices;
-} Mesh;
+} ModelMesh;
 
 typedef struct Model {
     Array meshes;
     const char* directory;
 } Model;    
 
-void setup_mesh(Mesh mesh) {
+void setup_mesh(ModelMesh mesh) {
     glGenVertexArrays(1, mesh.VAO);
     glGenBuffers(1, mesh.VBO);
     glGenBuffers(1, mesh.EBO);
@@ -74,8 +74,8 @@ void setup_mesh(Mesh mesh) {
     return;
 }
 
-Mesh create_mesh(Array vertices, Array indices, Array textures) {
-    Mesh mesh = {0};
+ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
+    ModelMesh mesh = {0};
     
     mesh.vertices = vertices;
     mesh.indices = indices;
@@ -92,7 +92,7 @@ Mesh create_mesh(Array vertices, Array indices, Array textures) {
     return mesh;
 }
 
-void deallocate_mesh(Mesh mesh) {
+void deallocate_mesh(ModelMesh mesh) {
     DEBUG_INFO("deallocating mesh...");
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
@@ -103,7 +103,7 @@ void deallocate_mesh(Mesh mesh) {
     return;
 }
 
-void draw_mesh(Shader shader, Mesh mesh) {
+void draw_mesh(Shader shader, ModelMesh mesh) {
     unsigned int diffuse_nr = 1;
     unsigned int specular_nr = 1;
 
@@ -112,7 +112,7 @@ void draw_mesh(Shader shader, Mesh mesh) {
 
         // retrieve texture number (the N in diffuse_textureN)
         char* number;
-        char* name = (char*) (GET_ELEMENT(Texture*, mesh.textures, i) -> type);
+        char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh.textures, i) -> type);
         if (!strcmp(name, "texture_diffuse")) {
             number = num_to_str(diffuse_nr);
             diffuse_nr++;
@@ -124,7 +124,7 @@ void draw_mesh(Shader shader, Mesh mesh) {
         char* material_id = (char*) calloc(1, sizeof(char));
         concat(3, &material_id, "sss", "material.", name, number);
         set_int(shader.vertex_shader, material_id, i, glUniform1i);
-        glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(Texture*, mesh.textures, i) -> id);
+        glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh.textures, i) -> id);
         free(material_id);
         free(number);
     }
@@ -141,7 +141,7 @@ void draw_mesh(Shader shader, Mesh mesh) {
 
 void draw_model(Shader shader, Model model) {
     for (unsigned int i = 0; i < model.meshes.count; i++) {
-        draw_mesh(shader, *GET_ELEMENT(Mesh*, model.meshes, i));
+        draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
     return;
 }

@@ -91,5 +91,12 @@ typedef struct Scene {
 } Scene;
 
 Scene decode_gltf(char* path);
+void deallocate_arr(Array arr);
+
+void deallocate_arr(Array arr) {
+    DEBUG_INFO("deallocating array...\n");
+    free(arr.data);
+    return;
+}
 
 #endif //_GLTF_HEADER_H
