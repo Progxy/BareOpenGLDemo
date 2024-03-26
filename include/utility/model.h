@@ -12,7 +12,8 @@
 
 #include <string.h>
 #include "./utils.h"
-#include "./model_decoder.h"
+#include "./matrix.h"
+#include "../../libs/gltf_header.h"
 
 typedef struct Vertex {
     Vector position;
@@ -143,6 +144,98 @@ void draw_model(Shader shader, Model model) {
     for (unsigned int i = 0; i < model.meshes.count; i++) {
         draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
+    return;
+}
+
+static float* get_element_as_float(ArrayExtended arr_ext, unsigned int index) {
+    if (index >= arr_ext.arr.count) return NULL;
+
+    unsigned char size = elements_count[arr_ext.data_type];
+    void* data = GET_ELEMENT(void*, arr_ext.arr, index);
+    
+    if ((arr_ext.component_type == BYTE) || (arr_ext.component_type == UNSIGNED_BYTE) || (arr_ext.component_type == SHORT) || (arr_ext.component_type == UNSIGNED_SHORT) || (arr_ext.component_type == UNSIGNED_INT)) {
+        float* element = (float*) calloc(size, sizeof(float));
+        for (unsigned int i = 0; i < size; ++i) {
+            if (arr_ext.component_type == BYTE) element[i] = ((char*) data)[i];
+            else if (arr_ext.component_type == UNSIGNED_BYTE) element[i] = ((unsigned char*) data)[i];
+            else if (arr_ext.component_type == SHORT) element[i] = ((short int*) data)[i];
+            else if (arr_ext.component_type == UNSIGNED_SHORT) element[i] = ((unsigned short int*) data)[i];
+            else if (arr_ext.component_type == UNSIGNED_INT) element[i] = ((unsigned int*) data)[i];
+        }
+        return element;
+    }
+    
+    return ((float*) data);
+}
+
+ModelMesh process_mesh(Mesh mesh) {
+    ModelMesh model_mesh = {0};
+    model_mesh.vertices = init_arr();
+    model_mesh.textures = init_arr();
+    model_mesh.indices = init_arr();
+
+    for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i) {
+        Vertex vertex = {0};
+        
+        vertex.position = vec(3, 0.0f, 0.0f, 0.0f);
+        float* position = get_element_as_float(mesh.vertices, i);
+        for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
+            vertex.position.data[j] = position[j];
+        }
+
+        vertex.normal = vec(3, 0.0f, 0.0f, 0.0f);
+        float* normal = get_element_as_float(mesh.normals, i);
+        for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
+            vertex.normal.data[j] = normal[j];
+        }
+        
+        vertex.tex_coords = vec(2, 0.0f, 0.0f);   
+        float* tex_coords = get_element_as_float(mesh.texture_coords, i);
+        for (unsigned int j = 0; j < elements_count[mesh.texture_coords.data_type] && (tex_coords != NULL); ++j) {
+            vertex.tex_coords.data[j] = tex_coords[j];
+        }
+
+        append_element(&(model_mesh.vertices), &vertex);
+    }
+
+    for (unsigned int i = 0; i < mesh.faces_count; ++i) {
+        Face face = mesh.faces[i];
+        for (unsigned int j = 0; j < topology_size[face.topology]; ++j) {
+            append_element(&(model_mesh.indices), face.indices + j);
+        }
+    }
+
+    return model_mesh;
+}
+
+void process_node(Array* meshes, Scene scene, Node node) {
+    for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
+        Mesh mesh = scene.meshes[*GET_ELEMENT(unsigned int*, node.meshes_indices, i)];
+        ModelMesh model_mesh = process_mesh(mesh);
+        append_element(meshes, &model_mesh);
+    }
+
+    for (unsigned int i = 0; i < node.children_count; ++i) {
+        process_node(meshes, scene, node.childrens[i]);
+    }
+
+    return;
+}
+
+void load_model(char* path) {
+    Scene scene = decode_gltf(path);
+    
+    if (scene.meshes == NULL) {
+        printf("ERROR: error while decoding the model.\n");
+        return;
+    } 
+
+    Model model = {0};
+    model.directory = path; // remove the last part of the path 
+    model.meshes = init_arr();
+
+    process_node(&(model.meshes), scene, scene.root_node);
+
     return;
 }
 

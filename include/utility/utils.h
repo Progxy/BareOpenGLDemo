@@ -4,6 +4,7 @@
 #define __USE_MISC 
 #include <math.h>
 #include <stdarg.h>
+#include "./types.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -13,6 +14,25 @@
 #define DEBUG_INFO(debug_str) printf("DEBUG_INFO: %s\n", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 #define GET_ELEMENT(type, arr, index) ((type) (((arr).data)[index]))
+
+Array init_arr() {
+    Array arr = (Array) { .count = 0 };
+    arr.data = (void**) calloc(1, sizeof(void*));
+    return arr;
+}
+
+void append_element(Array* arr, void* element) {
+    arr -> data = (void**) realloc(arr -> data, sizeof(void*) * (arr -> count + 1));
+    (arr -> data)[arr -> count] = element;
+    (arr -> count)++;
+    return;
+}
+
+void deallocate_arr(Array arr) {
+    DEBUG_INFO("deallocating array...\n");
+    free(arr.data);
+    return;
+}
 
 void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
     unsigned int object = glGetUniformLocation(shader, obj_name);

@@ -1,6 +1,8 @@
 #ifndef _GLTF_HEADER_H
 #define _GLTF_HEADER_H
 
+#include "../include/utility/types.h"
+
 typedef unsigned char bool;
 
 typedef enum Filter { NEAREST = 9728, LINEAR, NEAREST_MIPMAP_NEAREST = 9984, LINEAR_MIPMAP_NEAREST, NEAREST_MIPMAP_LINEAR, LINEAR_MIPMAP_LINEAR } Filter;
@@ -9,10 +11,9 @@ typedef enum ComponentType { BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, UNSIGNE
 typedef enum Wrap { CLAMP_TO_EDGE = 33071, MIRRORED_REPEAT = 33648, REPEAT = 10497 } Wrap;
 typedef enum DataType { SCALAR, VEC_2, VEC_3, VEC_4, MAT_2, MAT_3, MAT_4 } DataType;
 
-typedef struct Array {
-    void** data;
-    unsigned int count;
-} Array;
+unsigned char byte_lengths[] = { sizeof(char), sizeof(unsigned char), sizeof(short int), sizeof(unsigned short int), sizeof(unsigned int), sizeof(float) };
+unsigned char elements_count[] = { 1, 2, 3, 4, 4, 9, 16 };
+unsigned char topology_size[] = { 1, 2, 2, 2, 3, 3, 3};
 
 typedef struct ArrayExtended {
     Array arr;
@@ -91,12 +92,5 @@ typedef struct Scene {
 } Scene;
 
 Scene decode_gltf(char* path);
-void deallocate_arr(Array arr);
-
-void deallocate_arr(Array arr) {
-    DEBUG_INFO("deallocating array...\n");
-    free(arr.data);
-    return;
-}
 
 #endif //_GLTF_HEADER_H

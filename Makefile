@@ -5,7 +5,7 @@ OBJS = main.c glad.c
 COMPILER_FLAGS = -std=c11 -Wall -Wextra $(shell pkg-config --cflags glfw3)
 
 #LIBS specifies the additional libraries
-LIBS = -L"./libs" $(shell pkg-config --libs glfw3) -ldl -lm -lidl
+LIBS = -L"./libs" $(shell pkg-config --libs glfw3) -ldl -lm -lidl -lgltf
 
 # OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = -o ./out/game
