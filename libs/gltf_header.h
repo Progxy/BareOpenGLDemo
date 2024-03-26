@@ -5,16 +5,24 @@ typedef unsigned char bool;
 
 typedef enum Filter { NEAREST = 9728, LINEAR, NEAREST_MIPMAP_NEAREST = 9984, LINEAR_MIPMAP_NEAREST, NEAREST_MIPMAP_LINEAR, LINEAR_MIPMAP_LINEAR } Filter;
 typedef enum Topology { POINTS, LINES, LINE_LOOP, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN } Topology;
+typedef enum ComponentType { BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, UNSIGNED_INT, FLOAT } ComponentType;
 typedef enum Wrap { CLAMP_TO_EDGE = 33071, MIRRORED_REPEAT = 33648, REPEAT = 10497 } Wrap;
+typedef enum DataType { SCALAR, VEC_2, VEC_3, VEC_4, MAT_2, MAT_3, MAT_4 } DataType;
 
 typedef struct Array {
     void** data;
     unsigned int count;
 } Array;
 
-typedef Array Vertices;
-typedef Array Normals;
-typedef Array TextureCoords;
+typedef struct ArrayExtended {
+    Array arr;
+    DataType data_type;
+    ComponentType component_type;
+} ArrayExtended;
+
+typedef ArrayExtended Vertices;
+typedef ArrayExtended Normals;
+typedef ArrayExtended TextureCoords;
 
 typedef struct Face {
     unsigned int* indices;
