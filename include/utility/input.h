@@ -21,6 +21,8 @@
 float* refresh_mouse_position(float x_offset, float y_offset, unsigned char ret);
 
 void processInput(GLFWwindow* window, Camera* camera) {
+    glPolygonMode(GL_FRONT_AND_BACK, GET_PRESSED_KEY(window, GLFW_KEY_L) ? GL_LINE : GL_FILL); // Set to wireframe mode
+
     if (GET_PRESSED_KEY(window, GLFW_KEY_W)) {
         Vector temp = alloc_vector(0.0f, 1);
         scalar_product_matrix(camera -> camera_front, camera -> camera_speed, &temp);
