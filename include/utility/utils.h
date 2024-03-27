@@ -136,4 +136,25 @@ void concat(unsigned int count, char** str, const char* format, ...) {
     return;
 }
 
+bool str_contains(char* str, char* sub_str) {
+    unsigned int str_len = strlen(str);
+    unsigned int sub_str_len = strlen(sub_str);
+    bool is_contained = FALSE;
+
+    for (unsigned int i = 0; i <= str_len; ++i) {
+        if (str[i] == sub_str[0]) {
+            is_contained = TRUE;
+            for (unsigned int j = 0; j <= sub_str_len && (i + j) <= str_len; ++j) {
+                if (str[i + j] != sub_str[j]) {
+                    is_contained = FALSE;
+                    break;
+                }
+            }
+            if (is_contained) return is_contained;
+        }
+    }
+
+    return is_contained;
+}
+
 #endif // _UTILS_H_

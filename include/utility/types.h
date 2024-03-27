@@ -6,4 +6,9 @@ typedef struct Array {
     unsigned int count;
 } Array;
 
+typedef struct ImageFile {
+    char* file_path;
+    Image image;
+} ImageFile;
+
 #endif //_TYPES_H_
