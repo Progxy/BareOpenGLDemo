@@ -29,11 +29,14 @@ char** get_texture_images_path(char* path, unsigned int* file_count) {
     *file_count = 0;
 
     while ((file = readdir(directory)) != NULL) {
-        if ((!str_contains(file -> d_name, ".jpeg")) || (!str_contains(file -> d_name, ".jpg")) || (!str_contains(file -> d_name, ".png"))) {
+        if ((!str_contains(file -> d_name, ".jpeg")) && (!str_contains(file -> d_name, ".jpg")) && (!str_contains(file -> d_name, ".png"))) {
             continue;
         }
         images_paths = (char**) realloc(images_paths, sizeof(char*) * (*file_count + 1));
-        images_paths[*file_count] = file -> d_name;
+        char* file_path = (char*) calloc(750, sizeof(char));
+        int len = snprintf(file_path, 750, "%s%s", path, file -> d_name);
+        file_path = (char*) realloc(file_path, sizeof(char) * len);
+        images_paths[*file_count] = file_path;
         (*file_count)++;
     }
 
@@ -49,14 +52,10 @@ void load_images(char* file_path, Array* image_arr) {
     }
     
     for (unsigned int i = 0; i < images_count; ++i) {
-        char* image_path = (char*) calloc(500, sizeof(char));
-        int len = snprintf(image_path, 500, "%s%s", file_path, images_paths[i]);
-        image_path = (char*) realloc(image_path, sizeof(char) * len);
-        debug_info("decoding image: '%s'...\n", image_path);
-
         ImageFile* image_file = (ImageFile*) calloc(1, sizeof(ImageFile));
-        image_file -> file_path = image_path;
-        image_file -> image = decode_image(file_path);
+        image_file -> file_path = images_paths[i];
+        debug_info("decoding image: '%s'...\n", image_file -> file_path);
+        image_file -> image = decode_image(image_file -> file_path);
         append_element(image_arr, image_file);
     }
     
