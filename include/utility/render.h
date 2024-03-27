@@ -80,6 +80,9 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     // Deallocate the camera
     deallocate_camera(camera);
 
+    // Deallocate model
+    deallocate_model(element);
+
     return;
 }
 

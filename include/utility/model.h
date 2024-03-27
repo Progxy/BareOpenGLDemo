@@ -95,9 +95,17 @@ void deallocate_mesh(ModelMesh mesh) {
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
     deallocate_arr(mesh.indices);
-    free(mesh.VAO);
-    free(mesh.VBO);
-    free(mesh.EBO);
+    glDeleteVertexArrays(1, mesh.VAO);
+    glDeleteBuffers(1, mesh.VBO);
+    glDeleteBuffers(1, mesh.EBO);
+    return;
+}
+
+void deallocate_model(Model model) {
+    DEBUG_INFO("deallocating model...");
+    for (unsigned int i = 0; i < model.meshes.count; ++i) {
+        deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
+    }
     return;
 }
 
