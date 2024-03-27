@@ -49,11 +49,9 @@ void setup_mesh(ModelMesh* mesh) {
 
     glBindVertexArray(*(mesh -> VAO));
 
-    debug_info("setup vertices_count: %u\n", (mesh -> vertices).count);
     glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
     glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), GET_ELEMENT(void*, mesh -> vertices, 0), GL_STATIC_DRAW);  
 
-    debug_info("setup indices_count: %u\n", (mesh -> indices).count);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), GET_ELEMENT(void*, mesh -> indices, 0), GL_STATIC_DRAW);
 
@@ -132,7 +130,6 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     
     // draw mesh
     glBindVertexArray(*(mesh -> VAO));
-    debug_info("drawing indices_count: %u\n", (mesh -> indices).count);
     glDrawElements(GL_TRIANGLES, (mesh -> indices).count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
