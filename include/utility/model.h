@@ -111,41 +111,42 @@ void deallocate_model(Model model) {
 }
 
 void draw_mesh(unsigned int shader, ModelMesh mesh) {
+    debug_info("drawing mesh...\n");
     unsigned int base_color_nr = 1;
     unsigned int metallic_roughness_nr = 1;
     unsigned int normal_nr = 1;
     unsigned int occlusion_nr = 1;
     unsigned int emissive_nr = 1;
 
-    for(unsigned int i = 0; i < mesh.textures.count; i++) {
+    for(unsigned int i = 0; i < mesh.textures.count; ++i) {
+        debug_info("texture: %u out of %u\n", i, mesh.textures.count);
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
         // retrieve texture number (the N in diffuse_textureN)
-        char* number;
+        unsigned int number = 0;
         char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh.textures, i) -> type);
         if (!strcmp(name, "base_color_texture")) {
-            number = num_to_str(base_color_nr);
+            number = base_color_nr;
             base_color_nr++;
         } else if (!strcmp(name, "metallic_roughness_texture")) {
-            number = num_to_str(metallic_roughness_nr);
+            number = metallic_roughness_nr;
             metallic_roughness_nr++;
         } else if (!strcmp(name, "normal_texture")) {
-            number = num_to_str(normal_nr);
+            number = normal_nr;
             normal_nr++;
         } else if (!strcmp(name, "occlusion_texture")) {
-            number = num_to_str(occlusion_nr);
+            number = occlusion_nr;
             occlusion_nr++;
         } else if (!strcmp(name, "emissive_texture")) {
-            number = num_to_str(emissive_nr);
+            number = emissive_nr;
             emissive_nr++;
         }
 
         char* material_id = (char*) calloc(1, sizeof(char));
-        concat(3, &material_id, "sss", "material.", name, number);
+        concat(3, &material_id, "ssu", "material.", name, number);
         set_int(shader, material_id, i, glUniform1i);
         glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh.textures, i) -> id);
         free(material_id);
-        free(number);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -159,6 +160,7 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
 }
 
 void draw_model(unsigned int shader, Model model) {
+    debug_info("drawing model...\n");
     for (unsigned int i = 0; i < model.meshes.count; i++) {
         draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -202,49 +204,49 @@ ModelTexture* process_texture(Texture texture, char* type, Array* loaded_texture
     return model_texture;
 }
 
-ModelMesh process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
-    ModelMesh model_mesh = {0};
-    model_mesh.vertices = init_arr();
-    model_mesh.textures = init_arr();
-    model_mesh.indices = init_arr();
+ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
+    ModelMesh* model_mesh = (ModelMesh*) calloc(1, sizeof(ModelMesh));
+    model_mesh -> vertices = init_arr();
+    model_mesh -> textures = init_arr();
+    model_mesh -> indices = init_arr();
 
     for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i) {
-        Vertex vertex = {0};
+        Vertex* vertex = (Vertex*) calloc(1, sizeof(Vertex));
         
-        vertex.position = vec(3, 0.0f, 0.0f, 0.0f);
+        vertex -> position = vec(3, 0.0f, 0.0f, 0.0f);
         float* position = get_element_as_float(mesh.vertices, i);
         for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
-            vertex.position.data[j] = position[j];
+            (vertex -> position).data[j] = position[j];
         }
 
-        vertex.normal = vec(3, 0.0f, 0.0f, 0.0f);
+        vertex -> normal = vec(3, 0.0f, 0.0f, 0.0f);
         float* normal = get_element_as_float(mesh.normals, i);
         for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
-            vertex.normal.data[j] = normal[j];
+            (vertex -> normal).data[j] = normal[j];
         }
         
-        vertex.tex_coords = vec(2, 0.0f, 0.0f);   
+        vertex -> tex_coords = vec(2, 0.0f, 0.0f);   
         float* tex_coords = get_element_as_float(mesh.texture_coords, i);
         for (unsigned int j = 0; j < elements_count[mesh.texture_coords.data_type] && (tex_coords != NULL); ++j) {
-            vertex.tex_coords.data[j] = tex_coords[j];
+            (vertex -> tex_coords).data[j] = tex_coords[j];
         }
 
-        append_element(&(model_mesh.vertices), &vertex);
+        append_element(&(model_mesh -> vertices), vertex);
     }
 
     for (unsigned int i = 0; i < mesh.faces_count; ++i) {
         Face face = mesh.faces[i];
         for (unsigned int j = 0; j < topology_size[face.topology]; ++j) {
-            append_element(&(model_mesh.indices), face.indices + j);
+            append_element(&(model_mesh -> indices), face.indices + j);
         }
     }
 
     Material material = scene.materials[mesh.material_index];
-    if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture", loaded_textures_arr));
-    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", loaded_textures_arr));    
-    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));    
-    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));    
-    if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.emissive_texture, "emissive_texture", loaded_textures_arr));
+    if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture", loaded_textures_arr));
+    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", loaded_textures_arr));    
+    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));    
+    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));    
+    if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.emissive_texture, "emissive_texture", loaded_textures_arr));
 
     return model_mesh;
 }
@@ -253,8 +255,8 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         Mesh mesh = scene.meshes[mesh_index];
-        ModelMesh model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
-        append_element(meshes, &model_mesh);
+        ModelMesh* model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
+        append_element(meshes, model_mesh);
     }
 
     for (unsigned int i = 0; i < node.children_count; ++i) {
