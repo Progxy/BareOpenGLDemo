@@ -73,22 +73,17 @@ void deallocate_images(Array images_arr) {
     return;
 }
 
-void load_texture(const char* file_path, unsigned int* texture_id, Image* texture_image) {
+void load_texture(const char* file_path, unsigned int* texture_id) {
     glGenTextures(1, texture_id);
 
-    Image image;
-    if (texture_image == NULL) {
-        debug_info("decoding the image...\n");
-        image = decode_image(file_path);
+    debug_info("decoding image: '%s' ...\n", file_path);
+    Image image = decode_image(file_path);
 
-        if (image.error) {
-            error_info("Texture failed to load at path: %s, with error: %s\n", file_path, err_codes[image.error]);
-            deallocate_image(image);
-            *texture_id = -1;
-            return;
-        }
-    } else {
-        image = *texture_image;
+    if (image.error) {
+        error_info("Texture failed to load at path: %s, with error: %s\n", file_path, err_codes[image.error]);
+        deallocate_image(image);
+        *texture_id = -1;
+        return;
     }
 
     GLenum format;
@@ -105,7 +100,7 @@ void load_texture(const char* file_path, unsigned int* texture_id, Image* textur
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    if (texture_image == NULL) deallocate_image(image);
+    deallocate_image(image);
     
     debug_info("texture successfully loaded\n");
 
@@ -114,8 +109,8 @@ void load_texture(const char* file_path, unsigned int* texture_id, Image* textur
 
 bool load_textures(unsigned int vertex_shader, unsigned int* diffuse_map, unsigned int* specular_map) {
     // Load Texture
-    load_texture("./assets/container2.png", diffuse_map, NULL);
-    load_texture("./assets/container2_specular.png", specular_map, NULL);
+    load_texture("./assets/container2.png", diffuse_map);
+    load_texture("./assets/container2_specular.png", specular_map);
 
     if (((int) *diffuse_map) == -1 || ((int) *specular_map) == -1) {
         return TRUE;

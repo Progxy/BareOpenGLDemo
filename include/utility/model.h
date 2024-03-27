@@ -186,25 +186,23 @@ static float* get_element_as_float(ArrayExtended arr_ext, unsigned int index) {
     return ((float*) data);
 }
 
-ModelTexture* process_texture(Texture texture, char* type, Array images_arr) {
+ModelTexture* process_texture(Texture texture, char* type, Array* loaded_textures_arr) {
     ModelTexture* model_texture = (ModelTexture*) calloc(1, sizeof(ModelTexture));
-    for (unsigned int i = 0; i < images_arr.count; ++i) {
-        ImageFile* image_file = GET_ELEMENT(ImageFile*, images_arr, i);
-        if (!strcmp(image_file -> file_path, texture.texture_path)) {
-            load_texture(texture.texture_path, &(model_texture -> id), &(image_file -> image));
-            model_texture -> type = type;
-            model_texture -> path = texture.texture_path;
+    for (unsigned int i = 0; i < loaded_textures_arr -> count; ++i) {
+        ModelTexture loaded_texture = *GET_ELEMENT(ModelTexture*, *loaded_textures_arr, i);
+        if (!strcmp(loaded_texture.path, texture.texture_path)) {
+            *model_texture = loaded_texture;
             return model_texture;
         }
     }
-    load_texture(texture.texture_path, &(model_texture -> id), NULL);
+    load_texture(texture.texture_path, &(model_texture -> id));
     model_texture -> type = type;
     model_texture -> path = texture.texture_path;
+    append_element(loaded_textures_arr, model_texture);
     return model_texture;
 }
 
-ModelMesh process_mesh(Mesh mesh, Scene scene, Array images_arr) {
-    debug_info("processing mesh...\n");
+ModelMesh process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
     ModelMesh model_mesh = {0};
     model_mesh.vertices = init_arr();
     model_mesh.textures = init_arr();
@@ -242,26 +240,25 @@ ModelMesh process_mesh(Mesh mesh, Scene scene, Array images_arr) {
     }
 
     Material material = scene.materials[mesh.material_index];
-    if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture", images_arr));
-    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", images_arr));    
-    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.normal_texture.texture, "normal_texture", images_arr));    
-    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", images_arr));    
-    if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.emissive_texture, "emissive_texture", images_arr));
+    if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture", loaded_textures_arr));
+    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", loaded_textures_arr));    
+    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));    
+    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));    
+    if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh.textures), process_texture(material.emissive_texture, "emissive_texture", loaded_textures_arr));
 
     return model_mesh;
 }
 
-void process_node(Array* meshes, Scene scene, Node node, Array images_arr) {
+void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_arr) {
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
-        debug_info("mesh_index: %u\n", mesh_index);
         Mesh mesh = scene.meshes[mesh_index];
-        ModelMesh model_mesh = process_mesh(mesh, scene, images_arr);
+        ModelMesh model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
         append_element(meshes, &model_mesh);
     }
 
     for (unsigned int i = 0; i < node.children_count; ++i) {
-        process_node(meshes, scene, (node.childrens)[i], images_arr);
+        process_node(meshes, scene, (node.childrens)[i], loaded_textures_arr);
     }
 
     return;
@@ -276,18 +273,13 @@ Model load_model(char* path) {
         return model;
     } 
 
-    char* texture_path = (char*) calloc(500, sizeof(char));
-    int len = snprintf(texture_path, 500, "%stextures/", path);
-    texture_path = (char*) realloc(texture_path, sizeof(char) * len);
-    Array images_arr = init_arr();
-    load_images(texture_path, &images_arr);
-    free(texture_path);
+    Array loaded_textures_arr = init_arr();
 
     model.directory = get_directory(path);
     model.meshes = init_arr();
-    process_node(&(model.meshes), scene, scene.root_node, images_arr);
+    process_node(&(model.meshes), scene, scene.root_node, &loaded_textures_arr);
 
-    deallocate_images(images_arr);
+    debug_info("model successfully loaded\n");
 
     return model;
 }
