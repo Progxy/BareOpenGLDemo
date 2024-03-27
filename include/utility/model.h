@@ -42,18 +42,18 @@ typedef struct Model {
     char* directory;
 } Model;    
 
-void setup_mesh(ModelMesh mesh) {
-    glGenVertexArrays(1, mesh.VAO);
-    glGenBuffers(1, mesh.VBO);
-    glGenBuffers(1, mesh.EBO);
+void setup_mesh(ModelMesh* mesh) {
+    glGenVertexArrays(1, mesh -> VAO);
+    glGenBuffers(1, mesh -> VBO);
+    glGenBuffers(1, mesh -> EBO);
 
-    glBindVertexArray(*(mesh.VAO));
-    glBindBuffer(GL_ARRAY_BUFFER, *(mesh.VBO));
+    glBindVertexArray(*(mesh -> VAO));
+    glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
 
-    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.count * sizeof(Vertex), *(mesh.vertices.data), GL_STATIC_DRAW);  
+    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), *((mesh -> vertices).data), GL_STATIC_DRAW);  
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh.EBO));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.count * sizeof(unsigned int), *(mesh.indices.data), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), *((mesh -> indices).data), GL_STATIC_DRAW);
 
     // vertex positions
     glEnableVertexAttribArray(0);	
@@ -72,26 +72,7 @@ void setup_mesh(ModelMesh mesh) {
     return;
 }
 
-ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
-    ModelMesh mesh = {0};
-    
-    mesh.vertices = vertices;
-    mesh.indices = indices;
-    mesh.textures = textures;
-    
-    mesh.VAO = (unsigned int*) calloc(1, sizeof(unsigned int));
-    mesh.VBO = (unsigned int*) calloc(1, sizeof(unsigned int));
-    mesh.EBO = (unsigned int*) calloc(1, sizeof(unsigned int));
-
-    debug_info("creating mesh...\n");
-
-    setup_mesh(mesh);
-
-    return mesh;
-}
-
 void deallocate_mesh(ModelMesh mesh) {
-    debug_info("deallocating mesh...\n");
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
     deallocate_arr(mesh.indices);
@@ -111,7 +92,6 @@ void deallocate_model(Model model) {
 }
 
 void draw_mesh(unsigned int shader, ModelMesh mesh) {
-    debug_info("drawing mesh...\n");
     unsigned int base_color_nr = 1;
     unsigned int metallic_roughness_nr = 1;
     unsigned int normal_nr = 1;
@@ -119,7 +99,6 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
     unsigned int emissive_nr = 1;
 
     for(unsigned int i = 0; i < mesh.textures.count; ++i) {
-        debug_info("texture: %u out of %u\n", i, mesh.textures.count);
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
         // retrieve texture number (the N in diffuse_textureN)
@@ -148,7 +127,7 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
         glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh.textures, i) -> id);
         free(material_id);
     }
-
+    
     glActiveTexture(GL_TEXTURE0);
 
     // draw mesh
@@ -160,7 +139,6 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
 }
 
 void draw_model(unsigned int shader, Model model) {
-    debug_info("drawing model...\n");
     for (unsigned int i = 0; i < model.meshes.count; i++) {
         draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -247,6 +225,12 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
     if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));    
     if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));    
     if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.emissive_texture, "emissive_texture", loaded_textures_arr));
+
+    model_mesh -> VAO = (unsigned int*) calloc(1, sizeof(unsigned int));
+    model_mesh -> VBO = (unsigned int*) calloc(1, sizeof(unsigned int));
+    model_mesh -> EBO = (unsigned int*) calloc(1, sizeof(unsigned int));
+
+    setup_mesh(model_mesh);
 
     return model_mesh;
 }
