@@ -83,7 +83,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
     mesh.VBO = (unsigned int*) calloc(1, sizeof(unsigned int));
     mesh.EBO = (unsigned int*) calloc(1, sizeof(unsigned int));
 
-    debug_info("creating mesh...");
+    debug_info("creating mesh...\n");
 
     setup_mesh(mesh);
 
@@ -91,7 +91,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
 }
 
 void deallocate_mesh(ModelMesh mesh) {
-    debug_info("deallocating mesh...");
+    debug_info("deallocating mesh...\n");
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
     deallocate_arr(mesh.indices);
@@ -102,7 +102,7 @@ void deallocate_mesh(ModelMesh mesh) {
 }
 
 void deallocate_model(Model model) {
-    debug_info("deallocating model...");
+    debug_info("deallocating model...\n");
     for (unsigned int i = 0; i < model.meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -195,7 +195,7 @@ ModelTexture* process_texture(Texture texture, char* type) {
 }
 
 ModelMesh process_mesh(Mesh mesh, Scene scene) {
-    debug_info("processing mesh...");
+    debug_info("processing mesh...\n");
     ModelMesh model_mesh = {0};
     model_mesh.vertices = init_arr();
     model_mesh.textures = init_arr();
@@ -243,7 +243,6 @@ ModelMesh process_mesh(Mesh mesh, Scene scene) {
 }
 
 void process_node(Array* meshes, Scene scene, Node node) {
-    debug_info("mesh_count: %u, children_count: %u\n", node.meshes_indices.count, node.children_count);
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         debug_info("mesh_index: %u\n", mesh_index);

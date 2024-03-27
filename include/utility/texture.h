@@ -17,7 +17,7 @@
 void load_texture(const char* file_path, unsigned int* texture_id) {
     glGenTextures(1, texture_id);
 
-    debug_info("decoding the image...");
+    debug_info("decoding the image...\n");
     Image image = decode_image(file_path);
 
     if (image.error) {
@@ -43,7 +43,7 @@ void load_texture(const char* file_path, unsigned int* texture_id) {
 
     deallocate_image(image);
 
-    debug_info("image successfully decoded");
+    debug_info("image successfully decoded\n");
 
     return;
 }
