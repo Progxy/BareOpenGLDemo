@@ -17,9 +17,9 @@
 #include "../../libs/gltf_header.h"
 
 typedef struct Vertex {
-    Vector position;
-    Vector normal;
-    Vector tex_coords;
+    float position[3];
+    float normal[3];
+    float tex_coords[2];
 } Vertex;
 
 typedef struct ModelTexture {
@@ -48,12 +48,14 @@ void setup_mesh(ModelMesh* mesh) {
     glGenBuffers(1, mesh -> EBO);
 
     glBindVertexArray(*(mesh -> VAO));
+
+    debug_info("setup vertices_count: %u\n", (mesh -> vertices).count);
     glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
+    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), GET_ELEMENT(void*, mesh -> vertices, 0), GL_STATIC_DRAW);  
 
-    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), ((mesh -> vertices).data)[0], GL_STATIC_DRAW);  
-
+    debug_info("setup indices_count: %u\n", (mesh -> indices).count);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), ((mesh -> indices).data)[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), GET_ELEMENT(void*, mesh -> indices, 0), GL_STATIC_DRAW);
 
     // vertex positions
     glEnableVertexAttribArray(0);	
@@ -61,11 +63,11 @@ void setup_mesh(ModelMesh* mesh) {
 
     // vertex normals
     glEnableVertexAttribArray(1);	
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (3 * sizeof(float)));
     
     // vertex texture coords
     glEnableVertexAttribArray(2);	
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tex_coords));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (6 * sizeof(float)));
 
     glBindVertexArray(0);
 
@@ -91,19 +93,19 @@ void deallocate_model(Model model) {
     return;
 }
 
-void draw_mesh(unsigned int shader, ModelMesh mesh) {
+void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     unsigned int base_color_nr = 1;
     unsigned int metallic_roughness_nr = 1;
     unsigned int normal_nr = 1;
     unsigned int occlusion_nr = 1;
     unsigned int emissive_nr = 1;
 
-    for(unsigned int i = 0; i < mesh.textures.count; ++i) {
+    for(unsigned int i = 0; i < (mesh -> textures).count; ++i) {
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
         // retrieve texture number (the N in diffuse_textureN)
         unsigned int number = 0;
-        char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh.textures, i) -> type);
+        char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh -> textures, i) -> type);
         if (!strcmp(name, "base_color_texture")) {
             number = base_color_nr;
             base_color_nr++;
@@ -124,13 +126,14 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
         char* material_id = (char*) calloc(1, sizeof(char));
         concat(3, &material_id, "ssu", "material.", name, number);
         set_int(shader, material_id, i, glUniform1i);
-        glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh.textures, i) -> id);
+        glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh -> textures, i) -> id);
         free(material_id);
     }
     
     // draw mesh
-    glBindVertexArray(*(mesh.VAO));
-    glDrawElements(GL_TRIANGLES, mesh.indices.count, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(*(mesh -> VAO));
+    debug_info("drawing indices_count: %u\n", (mesh -> indices).count);
+    glDrawElements(GL_TRIANGLES, (mesh -> indices).count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // Set back to default
@@ -141,7 +144,7 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
 
 void draw_model(unsigned int shader, Model model) {
     for (unsigned int i = 0; i < model.meshes.count; i++) {
-        draw_mesh(shader, *GET_ELEMENT(ModelMesh*, model.meshes, i));
+        draw_mesh(shader, GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
     return;
 }
@@ -192,22 +195,19 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
     for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i) {
         Vertex* vertex = (Vertex*) calloc(1, sizeof(Vertex));
         
-        vertex -> position = vec(3, 0.0f, 0.0f, 0.0f);
         float* position = get_element_as_float(mesh.vertices, i);
         for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
-            (vertex -> position).data[j] = position[j];
+            (vertex -> position)[j] = position[j];
         }
 
-        vertex -> normal = vec(3, 0.0f, 0.0f, 0.0f);
         float* normal = get_element_as_float(mesh.normals, i);
         for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
-            (vertex -> normal).data[j] = normal[j];
+            (vertex -> normal)[j] = normal[j];
         }
         
-        vertex -> tex_coords = vec(2, 0.0f, 0.0f);   
         float* tex_coords = get_element_as_float(mesh.texture_coords, i);
         for (unsigned int j = 0; j < elements_count[mesh.texture_coords.data_type] && (tex_coords != NULL); ++j) {
-            (vertex -> tex_coords).data[j] = tex_coords[j];
+            (vertex -> tex_coords)[j] = tex_coords[j];
         }
 
         append_element(&(model_mesh -> vertices), vertex);
