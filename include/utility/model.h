@@ -50,10 +50,10 @@ void setup_mesh(ModelMesh* mesh) {
     glBindVertexArray(*(mesh -> VAO));
     glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
 
-    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), *((mesh -> vertices).data), GL_STATIC_DRAW);  
+    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), ((mesh -> vertices).data)[0], GL_STATIC_DRAW);  
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), *((mesh -> indices).data), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), ((mesh -> indices).data)[0], GL_STATIC_DRAW);
 
     // vertex positions
     glEnableVertexAttribArray(0);	
@@ -128,12 +128,13 @@ void draw_mesh(unsigned int shader, ModelMesh mesh) {
         free(material_id);
     }
     
-    glActiveTexture(GL_TEXTURE0);
-
     // draw mesh
     glBindVertexArray(*(mesh.VAO));
     glDrawElements(GL_TRIANGLES, mesh.indices.count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // Set back to default
+    glActiveTexture(GL_TEXTURE0);
 
     return;
 }

@@ -49,6 +49,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
     Model element = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
+    glEnable(GL_DEPTH_TEST); // configure global opengl state
 
     while (!glfwWindowShouldClose(window)) {
         // Update the camera speed
@@ -59,7 +60,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
         processInput(window, &camera);
 
         // Clean the window before rendering anything
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
         // Create the frustum (view, projection and model matrices)
