@@ -11,13 +11,32 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define SENSITIVITY 0.1f
-#define DEBUG_INFO(debug_str) printf("DEBUG_INFO: %s\n", debug_str)
+#define DEBUG_INFO_STR(debug_str) debug_info("%s", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 #define GET_ELEMENT(type, arr, index) ((type) (((arr).data)[index]))
 
 Array init_arr();
 void append_element(Array* arr, void* element);
 void deallocate_arr(Array arr);
+
+void debug_info(const char* format, ...) {
+    printf("DEBUG_INFO: ");
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    return;
+}
+
+void error_info(const char* format, ...) {
+    printf("\033[31;1mERROR: ");
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    printf("\033[0m");
+    return;
+}
 
 char* get_directory(char* path) {
     char* directory = (char*) calloc(350, sizeof(char));

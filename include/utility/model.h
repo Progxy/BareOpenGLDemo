@@ -83,7 +83,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
     mesh.VBO = (unsigned int*) calloc(1, sizeof(unsigned int));
     mesh.EBO = (unsigned int*) calloc(1, sizeof(unsigned int));
 
-    DEBUG_INFO("creating mesh...");
+    DEBUG_INFO_STR("creating mesh...");
 
     setup_mesh(mesh);
 
@@ -91,7 +91,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
 }
 
 void deallocate_mesh(ModelMesh mesh) {
-    DEBUG_INFO("deallocating mesh...");
+    DEBUG_INFO_STR("deallocating mesh...");
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
     deallocate_arr(mesh.indices);
@@ -102,7 +102,7 @@ void deallocate_mesh(ModelMesh mesh) {
 }
 
 void deallocate_model(Model model) {
-    DEBUG_INFO("deallocating model...");
+    DEBUG_INFO_STR("deallocating model...");
     for (unsigned int i = 0; i < model.meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -195,6 +195,7 @@ ModelTexture* process_texture(Texture texture, char* type) {
 }
 
 ModelMesh process_mesh(Mesh mesh, Scene scene) {
+    DEBUG_INFO_STR("processing mesh...");
     ModelMesh model_mesh = {0};
     model_mesh.vertices = init_arr();
     model_mesh.textures = init_arr();
@@ -242,9 +243,11 @@ ModelMesh process_mesh(Mesh mesh, Scene scene) {
 }
 
 void process_node(Array* meshes, Scene scene, Node node) {
-    printf("DEBUG_INFO: mesh_count: %u, children_count: %u\n", node.meshes_indices.count, node.children_count);
+    debug_info("mesh_count: %u, children_count: %u\n", node.meshes_indices.count, node.children_count);
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
-        Mesh mesh = scene.meshes[*GET_ELEMENT(unsigned int*, node.meshes_indices, i)];
+        unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
+        debug_info("mesh_index: %u\n", mesh_index);
+        Mesh mesh = scene.meshes[mesh_index];
         ModelMesh model_mesh = process_mesh(mesh, scene);
         append_element(meshes, &model_mesh);
     }
@@ -261,7 +264,7 @@ Model load_model(char* path) {
     Scene scene = decode_gltf(path);
     
     if (scene.meshes == NULL) {
-        printf("ERROR: error while decoding the model.\n");
+        error_info("ERROR: error while decoding the model.\n");
         return model;
     } 
 
