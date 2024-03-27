@@ -21,7 +21,7 @@ int main() {
         return -1;
     }
 
-    DEBUG_INFO_STR("Loaded window");
+    debug_info("Loaded window");
 
     // Init the shaders and check the status of the operation
     unsigned int vertex_shader;
@@ -29,13 +29,13 @@ int main() {
         return -1;
     }
 
-    printf("DEBUG_INFO: Loaded shader program, shader: %u\n", vertex_shader);
+    debug_info("Loaded shader program, shader: %u\n", vertex_shader);
 
-    DEBUG_INFO_STR("Rendering...");        
+    debug_info("Rendering...");        
 
     render(window, vertex_shader);
 
-    DEBUG_INFO_STR("terminating the program...");
+    debug_info("terminating the program...");
 
     terminate(vertex_shader);
 

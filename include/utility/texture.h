@@ -17,11 +17,11 @@
 void load_texture(const char* file_path, unsigned int* texture_id) {
     glGenTextures(1, texture_id);
 
-    DEBUG_INFO_STR("decoding the image...");
+    debug_info("decoding the image...");
     Image image = decode_image(file_path);
 
     if (image.error) {
-        printf("ERROR: Texture failed to load at path: %s, with error: %s\n", file_path, err_codes[image.error]);
+        error_info("Texture failed to load at path: %s, with error: %s\n", file_path, err_codes[image.error]);
         deallocate_image(image);
         *texture_id = -1;
         return;
@@ -43,7 +43,7 @@ void load_texture(const char* file_path, unsigned int* texture_id) {
 
     deallocate_image(image);
 
-    DEBUG_INFO_STR("image successfully decoded");
+    debug_info("image successfully decoded");
 
     return;
 }

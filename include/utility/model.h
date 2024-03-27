@@ -83,7 +83,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
     mesh.VBO = (unsigned int*) calloc(1, sizeof(unsigned int));
     mesh.EBO = (unsigned int*) calloc(1, sizeof(unsigned int));
 
-    DEBUG_INFO_STR("creating mesh...");
+    debug_info("creating mesh...");
 
     setup_mesh(mesh);
 
@@ -91,7 +91,7 @@ ModelMesh create_mesh(Array vertices, Array indices, Array textures) {
 }
 
 void deallocate_mesh(ModelMesh mesh) {
-    DEBUG_INFO_STR("deallocating mesh...");
+    debug_info("deallocating mesh...");
     deallocate_arr(mesh.vertices);
     deallocate_arr(mesh.textures);
     deallocate_arr(mesh.indices);
@@ -102,7 +102,7 @@ void deallocate_mesh(ModelMesh mesh) {
 }
 
 void deallocate_model(Model model) {
-    DEBUG_INFO_STR("deallocating model...");
+    debug_info("deallocating model...");
     for (unsigned int i = 0; i < model.meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
@@ -195,7 +195,7 @@ ModelTexture* process_texture(Texture texture, char* type) {
 }
 
 ModelMesh process_mesh(Mesh mesh, Scene scene) {
-    DEBUG_INFO_STR("processing mesh...");
+    debug_info("processing mesh...");
     ModelMesh model_mesh = {0};
     model_mesh.vertices = init_arr();
     model_mesh.textures = init_arr();
@@ -264,7 +264,7 @@ Model load_model(char* path) {
     Scene scene = decode_gltf(path);
     
     if (scene.meshes == NULL) {
-        error_info("ERROR: error while decoding the model.\n");
+        error_info("error while decoding the model.\n");
         return model;
     } 
 

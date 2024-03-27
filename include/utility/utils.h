@@ -11,7 +11,6 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define SENSITIVITY 0.1f
-#define DEBUG_INFO_STR(debug_str) debug_info("%s", debug_str)
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 #define GET_ELEMENT(type, arr, index) ((type) (((arr).data)[index]))
 
