@@ -39,7 +39,7 @@ typedef struct ModelMesh {
 
 typedef struct Model {
     Array meshes;
-    const char* directory;
+    char* directory;
 } Model;    
 
 void setup_mesh(ModelMesh mesh) {
@@ -106,6 +106,7 @@ void deallocate_model(Model model) {
     for (unsigned int i = 0; i < model.meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
     }
+    free(model.directory);
     return;
 }
 
@@ -241,6 +242,7 @@ ModelMesh process_mesh(Mesh mesh, Scene scene) {
 }
 
 void process_node(Array* meshes, Scene scene, Node node) {
+    printf("DEBUG_INFO: mesh_count: %u, children_count: %u\n", node.meshes_indices.count, node.children_count);
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         Mesh mesh = scene.meshes[*GET_ELEMENT(unsigned int*, node.meshes_indices, i)];
         ModelMesh model_mesh = process_mesh(mesh, scene);
@@ -248,7 +250,7 @@ void process_node(Array* meshes, Scene scene, Node node) {
     }
 
     for (unsigned int i = 0; i < node.children_count; ++i) {
-        process_node(meshes, scene, node.childrens[i]);
+        process_node(meshes, scene, (node.childrens)[i]);
     }
 
     return;
@@ -263,7 +265,7 @@ Model load_model(char* path) {
         return model;
     } 
 
-    model.directory = path; // remove the last part of the path 
+    model.directory = get_directory(path);
     model.meshes = init_arr();
     process_node(&(model.meshes), scene, scene.root_node);
 

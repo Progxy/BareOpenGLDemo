@@ -19,6 +19,19 @@ Array init_arr();
 void append_element(Array* arr, void* element);
 void deallocate_arr(Array arr);
 
+char* get_directory(char* path) {
+    char* directory = (char*) calloc(350, sizeof(char));
+    int new_len = 0;
+    for (new_len = strlen(path); new_len >= 0 && path[new_len] != '/'; --new_len) { }
+    for (int i = 0; i < new_len; ++i) {
+        directory[i] = path[i];
+    }
+    directory[new_len] = '\0';
+    directory = (char*) realloc(directory, sizeof(char) * (new_len + 1));
+    printf("DEBUG_INFO: old_path: '%s', new_path: '%s'\n", path, directory);
+    return directory;
+}
+
 void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
     unsigned int object = glGetUniformLocation(shader, obj_name);
     return (*uniform_value)(object, obj_data);
