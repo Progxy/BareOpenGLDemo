@@ -28,8 +28,6 @@ void load_texture(const char* file_path, unsigned int* texture_id) {
         return;
     }
 
-    flip_image_vertically(image);
-
     GLenum format;
     if (image.components == 1) format = GL_RED;
     else if (image.components == 3) format = GL_RGB;
