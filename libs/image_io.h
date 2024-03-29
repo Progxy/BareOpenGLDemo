@@ -39,6 +39,8 @@ typedef struct Image {
 
 Image decode_image(const char* file_path);
 bool create_ppm_image(Image image, const char* filename);
+void flip_image_horizontally(Image image);
+void flip_image_vertically(Image image);
 void deallocate_image(Image image);
 
 #ifdef _NO_LIBRARY_
