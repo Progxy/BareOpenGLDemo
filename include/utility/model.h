@@ -32,9 +32,11 @@ typedef struct ModelMesh {
     unsigned int* VAO;
     unsigned int* VBO;
     unsigned int* EBO;
-    Array vertices;
+    Vertex* vertices;
+    unsigned int vertices_count;
     Array textures;
-    Array indices;
+    unsigned int* indices;
+    unsigned int indices_count;
 } ModelMesh;
 
 typedef struct Model {
@@ -50,10 +52,10 @@ void setup_mesh(ModelMesh* mesh) {
     glBindVertexArray(*(mesh -> VAO));
 
     glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
-    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices).count * sizeof(Vertex), GET_ELEMENT(void*, mesh -> vertices, 0), GL_STATIC_DRAW);  
+    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices_count) * sizeof(Vertex), (mesh -> vertices) -> position, GL_STATIC_DRAW);  
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices).count * sizeof(unsigned int), GET_ELEMENT(void*, mesh -> indices, 0), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices_count) * sizeof(unsigned int), mesh -> indices, GL_STATIC_DRAW);
 
     // vertex positions
     glEnableVertexAttribArray(0);	
@@ -73,9 +75,9 @@ void setup_mesh(ModelMesh* mesh) {
 }
 
 void deallocate_mesh(ModelMesh mesh) {
-    deallocate_arr(mesh.vertices);
+    free(mesh.vertices);
     deallocate_arr(mesh.textures);
-    deallocate_arr(mesh.indices);
+    free(mesh.indices);
     glDeleteVertexArrays(1, mesh.VAO);
     glDeleteBuffers(1, mesh.VBO);
     glDeleteBuffers(1, mesh.EBO);
@@ -130,7 +132,7 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     
     // draw mesh
     glBindVertexArray(*(mesh -> VAO));
-    glDrawElements(GL_TRIANGLES, (mesh -> indices).count, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh -> indices_count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // Set back to default
@@ -185,36 +187,36 @@ ModelTexture* process_texture(Texture texture, char* type, Array* loaded_texture
 
 ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
     ModelMesh* model_mesh = (ModelMesh*) calloc(1, sizeof(ModelMesh));
-    model_mesh -> vertices = init_arr();
+    model_mesh -> vertices = (Vertex*) calloc(1, sizeof(Vertex));
+    model_mesh -> vertices_count = 0;
     model_mesh -> textures = init_arr();
-    model_mesh -> indices = init_arr();
+    model_mesh -> indices = (unsigned int*) calloc(1, sizeof(unsigned int));
+    model_mesh -> indices_count = 0;
 
-    for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i) {
-        Vertex* vertex = (Vertex*) calloc(1, sizeof(Vertex));
+    for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i, ++(model_mesh -> vertices_count)) {
+        model_mesh -> vertices = (Vertex*) realloc(model_mesh -> vertices, sizeof(Vertex) * (model_mesh -> vertices_count + 1));
         
         float* position = get_element_as_float(mesh.vertices, i);
         for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
-            (vertex -> position)[j] = position[j];
-            debug_info("data_type: '%s', component_type: '%s', position[%u]: %f\n", data_type_str[mesh.vertices.data_type], component_type_str[mesh.vertices.component_type], j, position[j]);
+            ((model_mesh -> vertices)[model_mesh -> vertices_count]).position[j] = position[j];
         }
 
         float* normal = get_element_as_float(mesh.normals, i);
         for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
-            (vertex -> normal)[j] = normal[j];
+            ((model_mesh -> vertices)[model_mesh -> vertices_count]).normal[j] = normal[j];
         }
         
         float* tex_coords = get_element_as_float(mesh.texture_coords, i);
         for (unsigned int j = 0; j < elements_count[mesh.texture_coords.data_type] && (tex_coords != NULL); ++j) {
-            (vertex -> tex_coords)[j] = tex_coords[j];
+            ((model_mesh -> vertices)[model_mesh -> vertices_count]).tex_coords[j] = tex_coords[j];
         }
-
-        append_element(&(model_mesh -> vertices), vertex);
     }
 
     for (unsigned int i = 0; i < mesh.faces_count; ++i) {
         Face face = mesh.faces[i];
-        for (unsigned int j = 0; j < topology_size[face.topology]; ++j) {
-            append_element(&(model_mesh -> indices), face.indices + j);
+        for (unsigned int j = 0; j < topology_size[face.topology]; ++j, ++(model_mesh -> indices_count)) {
+            model_mesh -> indices = (unsigned int*) realloc(model_mesh -> indices, sizeof(unsigned int) * (model_mesh -> indices_count + 1));
+            (model_mesh -> indices)[model_mesh -> indices_count] = face.indices[j];
         }
     }
 
