@@ -195,6 +195,7 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
         float* position = get_element_as_float(mesh.vertices, i);
         for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
             (vertex -> position)[j] = position[j];
+            debug_info("data_type: '%s', component_type: '%s', position[%u]: %f\n", data_type_str[mesh.vertices.data_type], component_type_str[mesh.vertices.component_type], j, position[j]);
         }
 
         float* normal = get_element_as_float(mesh.normals, i);
