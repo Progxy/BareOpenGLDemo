@@ -29,7 +29,7 @@ int main() {
         return -1;
     }
 
-    debug_info("Loaded shader program, shader: %u\n", vertex_shader);
+    debug_info("Loaded shader program\n");
 
     debug_info("Rendering...\n");        
 
