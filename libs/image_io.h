@@ -1,10 +1,10 @@
 #ifndef _IMAGE_IO_H_
 #define _IMAGE_IO_H_
 
-#ifndef _USE_IMAGE_LIBRARY_
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifndef _USE_IMAGE_LIBRARY_
 #include "./debug_print.h"
 #include "./types.h"
 #include "./decode_jpeg.h"
@@ -207,6 +207,32 @@ bool create_ppm_image(Image image, const char* filename) {
     debug_print(GREEN, "copied %u bytes out of the expected %u\n\n", b_w, image.components * image.width * image.height);
 
     return NO_ERROR;
+}
+
+void flip_image_vertically(Image image) {
+    unsigned int half_image_size = (unsigned int) floorl(image.size / 2.0L);
+    for (unsigned int i = 0; i < half_image_size; ++i) {
+        unsigned char temp = image.decoded_data[i];
+        image.decoded_data[i] = image.decoded_data[image.size - i];
+        image.decoded_data[image.size - i] = temp;
+    }
+    return;
+}
+
+void flip_image_horizontally(Image image) {
+    for (unsigned int h = 0; h < image.height; ++h) {
+        unsigned int half_width_size = (unsigned int) floorl(image.width / 2.0L);
+        for (unsigned int w = 0; w < half_width_size; ++w) {
+            unsigned int first = ((h * image.width) + w) * 3;
+            unsigned int second = (((h + 1) * image.width) - (w + 1)) * 3;
+            for (unsigned char i = 0; i < image.components; ++i) {
+                unsigned char temp = image.decoded_data[first + i];
+                image.decoded_data[first + i] = image.decoded_data[second + i];
+                image.decoded_data[second + i] = temp;
+            }
+        }
+    }
+    return;
 }
 
 void deallocate_image(Image image) {
