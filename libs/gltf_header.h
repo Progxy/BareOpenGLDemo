@@ -26,6 +26,7 @@ typedef struct ArrayExtended {
 
 typedef ArrayExtended Vertices;
 typedef ArrayExtended Normals;
+typedef ArrayExtended Tangents;
 typedef ArrayExtended TextureCoords;
 
 typedef struct Face {
@@ -36,6 +37,7 @@ typedef struct Face {
 typedef struct Mesh {
     Vertices vertices; // equivalent to the POSITION attribute of glTF meshes
     Normals normals;
+    Tangents tangents;
     TextureCoords texture_coords;
     Face* faces;
     unsigned int faces_count;

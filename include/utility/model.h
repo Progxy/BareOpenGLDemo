@@ -20,6 +20,7 @@ typedef struct Vertex {
     float position[3];
     float normal[3];
     float tex_coords[2];
+    float tangent[4];
 } Vertex;
 
 typedef struct ModelTexture {
@@ -68,6 +69,10 @@ void setup_mesh(ModelMesh* mesh) {
     // vertex texture coords
     glEnableVertexAttribArray(2);	
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (6 * sizeof(float)));
+
+    // vertex tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (8 * sizeof(float)));
 
     glBindVertexArray(0);
 
@@ -204,6 +209,12 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
         float* normal = get_element_as_float(mesh.normals, i);
         for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).normal[j] = normal[j];
+        }        
+        
+        float* tangent = get_element_as_float(mesh.tangents, i);
+        debug_info("tangent_size: %u\n", elements_count[mesh.tangents.data_type]);
+        for (unsigned int j = 0; j < elements_count[mesh.tangents.data_type]; ++j) {
+            ((model_mesh -> vertices)[model_mesh -> vertices_count]).tangent[j] = tangent[j];
         }
         
         float* tex_coords = get_element_as_float(mesh.texture_coords, i);
