@@ -11,4 +11,11 @@ typedef struct ImageFile {
     Image image;
 } ImageFile;
 
+typedef struct TextureParams {
+    unsigned short int mag_filter;
+    unsigned short int min_filter;
+    unsigned short int wrap_s;
+    unsigned short int wrap_t;
+} TextureParams;
+
 #endif //_TYPES_H_

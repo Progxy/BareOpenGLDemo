@@ -15,7 +15,10 @@
 #include "./types.h"
 #include "./utils.h"
 
-void load_texture(const char* file_path, unsigned int* texture_id) {
+const unsigned short int values_filter[] = { GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR };
+const unsigned short int values_wrap[] = { GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT, GL_REPEAT };
+
+void load_texture(const char* file_path, unsigned int* texture_id, TextureParams texture_params) {
     glGenTextures(1, texture_id);
 
     debug_info("decoding image: '%s' ...\n", file_path);
@@ -38,10 +41,10 @@ void load_texture(const char* file_path, unsigned int* texture_id) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // Pass from Texture struct
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, values_wrap[texture_params.wrap_s]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, values_wrap[texture_params.wrap_t]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, values_filter[texture_params.min_filter]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, values_filter[texture_params.mag_filter]);
 
     deallocate_image(image);
     

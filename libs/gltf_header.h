@@ -14,6 +14,9 @@ typedef enum DataType { SCALAR, VEC2, VEC3, VEC4, MAT2, MAT3, MAT4 } DataType;
 const char* component_type_str[] = { "BYTE", "UNSIGNED_BYTE", "SHORT", "UNSIGNED_SHORT", "", "UNSIGNED_INT", "FLOAT" };
 const char* data_type_str[] = { "SCALAR", "VEC2", "VEC3", "VEC4", "MAT2", "MAT3", "MAT4" };
 
+const unsigned short int normalize_filter_values[] = { 9728, 9728, 9982, 9982, 9982, 9982 };
+const unsigned short int normalize_wrap_values[] = { 33071, 33647, 10495 };
+
 const unsigned char byte_lengths[] = { sizeof(char), sizeof(unsigned char), sizeof(short int), sizeof(unsigned short int), 0, sizeof(unsigned int), sizeof(float) };
 const unsigned char elements_count[] = { 1, 2, 3, 4, 4, 9, 16 };
 const unsigned char topology_size[] = { 1, 2, 2, 2, 3, 3, 3};

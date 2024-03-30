@@ -183,7 +183,13 @@ ModelTexture* process_texture(Texture texture, char* type, Array* loaded_texture
             return model_texture;
         }
     }
-    load_texture(texture.texture_path, &(model_texture -> id));
+    TextureParams texture_params = (TextureParams) { 
+        .wrap_s = normalize_wrap_values[texture.wrap_s], 
+        .wrap_t = normalize_wrap_values[texture.wrap_t],
+        .min_filter = normalize_filter_values[texture.min_filter],
+        .mag_filter = normalize_filter_values[texture.mag_filter]
+    };
+    load_texture(texture.texture_path, &(model_texture -> id), texture_params);
     model_texture -> type = type;
     model_texture -> path = texture.texture_path;
     append_element(loaded_textures_arr, model_texture);
