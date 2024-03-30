@@ -212,7 +212,6 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
         }        
         
         float* tangent = get_element_as_float(mesh.tangents, i);
-        debug_info("tangent_size: %u\n", elements_count[mesh.tangents.data_type]);
         for (unsigned int j = 0; j < elements_count[mesh.tangents.data_type]; ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).tangent[j] = tangent[j];
         }
