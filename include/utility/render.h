@@ -48,7 +48,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
     Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
-    Model element = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
+    Model object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
     glEnable(GL_DEPTH_TEST); // configure global opengl state
 
     while (!glfwWindowShouldClose(window)) {
@@ -71,7 +71,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
         deallocate_matrices(3, view, projection, model);   
 
         // Render the cubes
-        draw_model(vertex_shader, element);
+        draw_model(vertex_shader, object_model);
         
         // Swap buffers and poll IO events 
         glfwSwapBuffers(window);
@@ -82,7 +82,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     deallocate_camera(camera);
 
     // Deallocate model
-    deallocate_model(element);
+    deallocate_model(object_model);
 
     return;
 }

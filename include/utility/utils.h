@@ -46,7 +46,6 @@ char* get_directory(char* path) {
     }
     directory[new_len] = '\0';
     directory = (char*) realloc(directory, sizeof(char) * (new_len + 1));
-    printf("DEBUG_INFO: old_path: '%s', new_path: '%s'\n", path, directory);
     return directory;
 }
 

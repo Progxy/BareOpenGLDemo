@@ -105,7 +105,7 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     unsigned int occlusion_nr = 1;
     unsigned int emissive_nr = 1;
 
-    for(unsigned int i = 0; i < (mesh -> textures).count; ++i) {
+    for (unsigned int i = 0; i < (mesh -> textures).count; ++i) {
         glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
         // retrieve texture number (the N in diffuse_textureN)
