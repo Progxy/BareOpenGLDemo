@@ -38,6 +38,7 @@ typedef struct ModelMesh {
     Array textures;
     unsigned int* indices;
     unsigned int indices_count;
+    float transformation_matrix[16];
 } ModelMesh;
 
 typedef struct Model {
@@ -64,15 +65,15 @@ void setup_mesh(ModelMesh* mesh) {
 
     // vertex normals
     glEnableVertexAttribArray(1);	
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
     
     // vertex texture coords
     glEnableVertexAttribArray(2);	
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tex_coords));
 
     // vertex tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) (8 * sizeof(float)));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
 
     glBindVertexArray(0);
 
@@ -149,7 +150,9 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
 
 void draw_model(unsigned int shader, Model* model) {
     for (unsigned int i = 0; i < model -> meshes.count; ++i) {
-        draw_mesh(shader, GET_ELEMENT(ModelMesh*, model -> meshes, i));
+        ModelMesh* mesh = GET_ELEMENT(ModelMesh*, model -> meshes, i);
+        draw_mesh(shader, mesh);
+        set_matrix(shader, "transform", mesh -> transformation_matrix, glUniformMatrix4fv);
     }
     return;
 }
@@ -258,6 +261,9 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         Mesh mesh = scene.meshes[mesh_index];
         ModelMesh* model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
+        for (unsigned char t = 0; t < 16; ++t) {
+            model_mesh -> transformation_matrix[t] = node.transformation_matrix[t];
+        }
         append_element(meshes, model_mesh);
     }
 

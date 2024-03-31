@@ -54,6 +54,11 @@ void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uni
     return (*uniform_value)(object, obj_data);
 }
 
+void set_matrix(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_mat)(GLint, GLsizei, GLboolean, const GLfloat*)) {
+    unsigned int object = glGetUniformLocation(shader, obj_name);   
+    return (*uniform_mat)(object, 1, GL_TRUE, obj_data);
+}
+
 float deg_to_rad(float deg) {
     return deg * (M_PI / 180);
 }
