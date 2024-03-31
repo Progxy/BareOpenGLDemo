@@ -94,6 +94,7 @@ void deallocate_model(Model* model) {
     for (unsigned int i = 0; i < model -> meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model -> meshes, i));
     }
+    free(model -> directory);
     free(model);
     return;
 }
@@ -147,10 +148,9 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
 }
 
 void draw_model(unsigned int shader, Model* model) {
-    for (unsigned int i = 0; i < model -> meshes.count; i++) {
+    for (unsigned int i = 0; i < model -> meshes.count; ++i) {
         draw_mesh(shader, GET_ELEMENT(ModelMesh*, model -> meshes, i));
     }
-    free(model);
     return;
 }
 
