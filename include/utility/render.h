@@ -48,7 +48,8 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
     Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
-    Model object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
+    Model* object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
+    if (object_model == NULL) return;
     glEnable(GL_DEPTH_TEST); // configure global opengl state
 
     while (!glfwWindowShouldClose(window)) {

@@ -89,12 +89,12 @@ void deallocate_mesh(ModelMesh mesh) {
     return;
 }
 
-void deallocate_model(Model model) {
+void deallocate_model(Model* model) {
     debug_info("deallocating model...\n");
-    for (unsigned int i = 0; i < model.meshes.count; ++i) {
-        deallocate_mesh(*GET_ELEMENT(ModelMesh*, model.meshes, i));
+    for (unsigned int i = 0; i < model -> meshes.count; ++i) {
+        deallocate_mesh(*GET_ELEMENT(ModelMesh*, model -> meshes, i));
     }
-    free(model.directory);
+    free(model -> directory);
     return;
 }
 
@@ -146,10 +146,11 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     return;
 }
 
-void draw_model(unsigned int shader, Model model) {
-    for (unsigned int i = 0; i < model.meshes.count; i++) {
-        draw_mesh(shader, GET_ELEMENT(ModelMesh*, model.meshes, i));
+void draw_model(unsigned int shader, Model* model) {
+    for (unsigned int i = 0; i < model -> meshes.count; i++) {
+        draw_mesh(shader, GET_ELEMENT(ModelMesh*, model -> meshes, i));
     }
+    free(model);
     return;
 }
 
@@ -267,20 +268,20 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
     return;
 }
 
-Model load_model(char* path) {
-    Model model = {0};
+Model* load_model(char* path) {
     Scene scene = decode_gltf(path);
     
     if (scene.meshes == NULL) {
         error_info("error while decoding the model.\n");
-        return model;
+        return NULL;
     } 
 
+    Model* model = (Model*) calloc(1, sizeof(Model));
     Array loaded_textures_arr = init_arr();
 
-    model.directory = get_directory(path);
-    model.meshes = init_arr();
-    process_node(&(model.meshes), scene, scene.root_node, &loaded_textures_arr);
+    model -> directory = get_directory(path);
+    model -> meshes = init_arr();
+    process_node(&(model -> meshes), scene, scene.root_node, &loaded_textures_arr);
 
     debug_info("model successfully loaded\n");
 
