@@ -94,7 +94,7 @@ void deallocate_model(Model* model) {
     for (unsigned int i = 0; i < model -> meshes.count; ++i) {
         deallocate_mesh(*GET_ELEMENT(ModelMesh*, model -> meshes, i));
     }
-    free(model -> directory);
+    free(model);
     return;
 }
 
