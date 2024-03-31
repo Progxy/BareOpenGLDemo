@@ -11,6 +11,7 @@ typedef enum ComponentType { BYTE, UNSIGNED_BYTE, SHORT, UNSIGNED_SHORT, UNSIGNE
 typedef enum Wrap { CLAMP_TO_EDGE = 33071, MIRRORED_REPEAT = 33648, REPEAT = 10497 } Wrap;
 typedef enum DataType { SCALAR, VEC2, VEC3, VEC4, MAT2, MAT3, MAT4 } DataType;
 
+const char* topology_type[] = { "POINTS", "LINES", "LINE_LOOP", "LINE_STRIP", "TRIANGLES", "TRIANGLE_STRIP", "TRIANGLE_FAN" };
 const char* component_type_str[] = { "BYTE", "UNSIGNED_BYTE", "SHORT", "UNSIGNED_SHORT", "", "UNSIGNED_INT", "FLOAT" };
 const char* data_type_str[] = { "SCALAR", "VEC2", "VEC3", "VEC4", "MAT2", "MAT3", "MAT4" };
 

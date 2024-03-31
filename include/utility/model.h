@@ -261,7 +261,7 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
     }
 
     for (unsigned int i = 0; i < node.children_count; ++i) {
-        process_node(meshes, scene, (node.childrens)[i], loaded_textures_arr);
+        process_node(meshes, scene, node.childrens[i], loaded_textures_arr);
     }
 
     return;
