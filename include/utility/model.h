@@ -261,8 +261,12 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         Mesh mesh = scene.meshes[mesh_index];
         ModelMesh* model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
+        float max = 0.0f;
         for (unsigned char t = 0; t < 16; ++t) {
-            model_mesh -> transformation_matrix[t] = node.transformation_matrix[t];
+            if (max < absf(node.transformation_matrix[t])) max = absf(node.transformation_matrix[t]);
+        }
+        for (unsigned char t = 0; t < 16; ++t) {
+            model_mesh -> transformation_matrix[t] = node.transformation_matrix[t] / max;
         }
         append_element(meshes, model_mesh);
     }

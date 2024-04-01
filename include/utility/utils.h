@@ -59,6 +59,10 @@ void set_matrix(unsigned int shader, const char* obj_name, float* obj_data, void
     return (*uniform_mat)(object, 1, GL_TRUE, obj_data);
 }
 
+float absf(float val) {
+    return val < 0.0f ? -val : val;
+}
+
 float deg_to_rad(float deg) {
     return deg * (M_PI / 180);
 }
