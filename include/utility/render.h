@@ -15,25 +15,15 @@
 #include "./camera.h"
 #include "./model.h"
 
-void set_vec(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_vec)(GLint, GLsizei, const GLfloat*)) {
-    unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_vec)(object, 1, obj_data);
-}
-
-void set_float(unsigned int shader, const char* obj_name, float obj_data, void (*uniform_value)(GLint, GLfloat)) {
-    unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_value)(object, obj_data);
-}
-
 void set_frustum(unsigned int shader, Matrix view, Matrix projection, Matrix model) {
     // Use the light shader
     glUseProgram(shader);
 
-    // Set the data for the vertex shader
-    set_matrix(shader, "view", view.data, glUniformMatrix4fv);
-    set_matrix(shader, "projection", projection.data, glUniformMatrix4fv); 
-    set_matrix(shader, "model", model.data, glUniformMatrix4fv);
-
+    Matrix camera_matrix = alloc_matrix(0.0f, 4, 4);
+    dot_product_matrix(3, &camera_matrix, projection, view, model);
+    set_matrix(shader, "camera_matrix", camera_matrix.data, glUniformMatrix4fv);
+    deallocate_matrices(1, camera_matrix);
+    
     return;
 }
 
@@ -45,6 +35,14 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
     Model* object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
     if (object_model == NULL) return;
+
+	Vector light_color = alloc_vector(1.0f, 4);
+	Vector light_pos = alloc_vector(0.5f, 3);
+
+    glUseProgram(vertex_shader);
+    set_vec(vertex_shader, "light_color", light_color.data, glUniform4fv);
+    set_vec(vertex_shader, "light_pos", light_pos.data, glUniform3fv);
+
     glEnable(GL_DEPTH_TEST); // configure global opengl state
 
     while (!glfwWindowShouldClose(window)) {
@@ -67,12 +65,15 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
         deallocate_matrices(3, view, projection, model);   
 
         // Render the cubes
-        draw_model(vertex_shader, object_model);
+        draw_model(vertex_shader, object_model, &camera);
         
         // Swap buffers and poll IO events 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // Deallocate lights
+    deallocate_matrices(2, light_color, light_pos);
 
     // Deallocate the camera
     deallocate_camera(camera);

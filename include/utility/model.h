@@ -10,10 +10,9 @@
 
 #endif //_STDLIB_DEF_
 
-#include <string.h>
 #include "./utils.h"
-#include "./matrix.h"
 #include "./texture.h"
+#include "./camera.h"
 #include "../../libs/gltf_header.h"
 
 typedef struct Vertex {
@@ -75,7 +74,9 @@ void setup_mesh(ModelMesh* mesh) {
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
 
-    glBindVertexArray(0);
+    glBindVertexArray(0); // Unbind VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind EBO
 
     return;
 }
@@ -100,7 +101,7 @@ void deallocate_model(Model* model) {
     return;
 }
 
-void draw_mesh(unsigned int shader, ModelMesh* mesh) {
+void draw_mesh(unsigned int shader, ModelMesh* mesh, Camera* camera) {
     unsigned int base_color_nr = 1;
     unsigned int metallic_roughness_nr = 1;
     unsigned int normal_nr = 1;
@@ -137,10 +138,12 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
         free(material_id);
     }
     
+    set_vec(shader, "cam_pos", camera -> camera_pos.data, glUniform3fv);
+
     // draw mesh
     glBindVertexArray(*(mesh -> VAO));
     glDrawElements(GL_TRIANGLES, mesh -> indices_count, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    glBindVertexArray(0); // Unbind VAO
 
     // Set back to default
     glActiveTexture(GL_TEXTURE0);
@@ -148,10 +151,10 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh) {
     return;
 }
 
-void draw_model(unsigned int shader, Model* model) {
+void draw_model(unsigned int shader, Model* model, Camera* camera) {
     for (unsigned int i = 0; i < model -> meshes.count; ++i) {
         ModelMesh* mesh = GET_ELEMENT(ModelMesh*, model -> meshes, i);
-        draw_mesh(shader, mesh);
+        draw_mesh(shader, mesh, camera);
         set_matrix(shader, "transform", mesh -> transformation_matrix, glUniformMatrix4fv);
     }
     return;
