@@ -109,11 +109,10 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh, Camera* camera) {
     unsigned int emissive_nr = 1;
 
     for (unsigned int i = 0; i < (mesh -> textures).count; ++i) {
-        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-
-        // retrieve texture number (the N in diffuse_textureN)
         unsigned int number = 0;
         char* name = (char*) (GET_ELEMENT(ModelTexture*, mesh -> textures, i) -> type);
+        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+
         if (!strcmp(name, "base_color_texture")) {
             number = base_color_nr;
             base_color_nr++;

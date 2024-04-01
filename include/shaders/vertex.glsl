@@ -9,13 +9,13 @@ out vec3 normal;
 out vec2 tex_coords;
 out vec3 tangent;
 
-uniform mat4 camera_matrix;
 uniform mat4 transform;
+uniform mat4 camera_matrix;
 
 void main() {
 	current_pos = vec3(transform * vec4(a_pos, 1.0f));
 	normal = a_normal;
-	tex_coords = mat2(0.0, -1.0, 1.0, 0.0) * a_tex_coords;
+	tex_coords = a_tex_coords;
     tangent = a_tangent;
     gl_Position = camera_matrix * vec4(current_pos, 1.0);
 }
