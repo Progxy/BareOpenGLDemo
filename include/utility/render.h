@@ -15,15 +15,13 @@
 #include "./camera.h"
 #include "./model.h"
 
-void set_frustum(unsigned int shader, Matrix view, Matrix projection, Matrix model) {
-    // Use the light shader
-    glUseProgram(shader);
-
-    Matrix camera_matrix = alloc_matrix(0.0f, 4, 4);
-    dot_product_matrix(3, &camera_matrix, projection, view, model);
+void set_frustum(unsigned int shader, Camera camera) {
+    Matrix view = look_at(camera);
+    Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
+    Matrix camera_matrix = create_identity_matrix(4);
+    dot_product_matrix(2, &camera_matrix, projection, view);
     set_matrix(shader, "camera_matrix", camera_matrix.data, glUniformMatrix4fv);
-    deallocate_matrices(1, camera_matrix);
-    
+    deallocate_matrices(3, view, projection, camera_matrix);   
     return;
 }
 
@@ -37,11 +35,8 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     if (object_model == NULL) return;
 
 	Vector light_color = alloc_vector(1.0f, 4);
-	Vector light_pos = alloc_vector(0.5f, 3);
-
-    glUseProgram(vertex_shader);
     set_vec(vertex_shader, "light_color", light_color.data, glUniform4fv);
-    set_vec(vertex_shader, "light_pos", light_pos.data, glUniform3fv);
+    deallocate_matrices(1, light_color);
 
     glEnable(GL_DEPTH_TEST); // configure global opengl state
 
@@ -58,11 +53,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
         // Create the frustum (view, projection and model matrices)
-        Matrix view = look_at(camera);
-        Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
-        Matrix model = create_identity_matrix(4);
-        set_frustum(vertex_shader, view, projection, model);
-        deallocate_matrices(3, view, projection, model);   
+        set_frustum(vertex_shader, camera);
 
         // Render the cubes
         draw_model(vertex_shader, object_model, &camera);
@@ -71,9 +62,6 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // Deallocate lights
-    deallocate_matrices(2, light_color, light_pos);
 
     // Deallocate the camera
     deallocate_camera(camera);
