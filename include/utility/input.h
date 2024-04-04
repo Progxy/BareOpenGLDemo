@@ -26,33 +26,33 @@ void processInput(GLFWwindow* window, Camera* camera) {
     if (GET_PRESSED_KEY(window, GLFW_KEY_W)) {
         Vector temp = alloc_vector(0.0f, 1);
         scalar_product_matrix(camera -> camera_front, camera -> camera_speed, &temp);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
-        deallocate_matrices(1, temp);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
+        DEALLOCATE_MATRICES(temp);
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_S)) {
         Vector temp = alloc_vector(0.0f, 1);
         scalar_product_matrix(camera -> camera_front, -camera -> camera_speed, &temp);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
-        deallocate_matrices(1, temp);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
+        DEALLOCATE_MATRICES(temp);
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_A)) {
         Vector temp = cross_product(camera -> camera_front, camera -> camera_up);
         normalize_vector(temp, &temp);
         scalar_product_matrix(temp, -camera -> camera_speed, &temp);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
         gc_dispose();
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_D)) {
         Vector temp = cross_product(camera -> camera_front, camera -> camera_up);
         normalize_vector(temp, &temp);
         scalar_product_matrix(temp, camera -> camera_speed, &temp);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
         gc_dispose();
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_UP) || GET_PRESSED_KEY(window, GLFW_KEY_SPACE)) {
-        Vector temp = vec(3, 0.0f, camera -> camera_speed, 0.0f);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
-        deallocate_matrices(1, temp);
+        Vector temp = VEC(0.0f, camera -> camera_speed, 0.0f);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
+        DEALLOCATE_MATRICES(temp);
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_DOWN)) {
-        Vector temp = vec(3, 0.0f, -(camera -> camera_speed), 0.0f);
-        sum_matrices(2, &(camera -> camera_pos), camera -> camera_pos, temp);
-        deallocate_matrices(1, temp);
+        Vector temp = VEC(0.0f, -(camera -> camera_speed), 0.0f);
+        SUM_MATRICES(&(camera -> camera_pos), camera -> camera_pos, temp);
+        DEALLOCATE_MATRICES(temp);
     } else if (GET_PRESSED_KEY(window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(window, TRUE);
         printf("INPUT:KEY_PRESS_ESCAPE: closing the window...\n");
@@ -61,9 +61,9 @@ void processInput(GLFWwindow* window, Camera* camera) {
         reset_angles(-90.0f, 0.0f);
         // Reset the camera
         deallocate_camera(*camera);
-        Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
-        Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
-        Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
+        Vector camera_pos = VEC(0.0f, 0.0f,  3.0f);
+        Vector camera_front = VEC(0.0f, 0.0f, -1.0f);
+        Vector camera_up = VEC(0.0f, 1.0f,  0.0f);
         *camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
         // Reset the camera speed
         update_camera_speed(camera, TRUE);

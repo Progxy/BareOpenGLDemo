@@ -10,11 +10,18 @@
 #define FALSE 0
 #define MAT_INDEX(mat, row, col) (((mat).data)[((mat).cols * (row)) + (col)])
 #define VEC_INDEX(vec, index) (((vec).data)[index])
+#define QUAT_INDEX(quat, index) (((quat).data)[index])
 #define IS_VEC(mat) (mat.rows == 1 || mat.cols == 1)
 #define VEC_SIZE(vec) ((vec.rows == 1) ? vec.cols : vec.rows)
-#define alloc_vector(init_val, size) (alloc_matrix(init_val, size, 1))
-#define alloc_temp_vector(init_val, size) (alloc_temp_matrix(init_val, size, 1))
-#define get_column(mat, col, vec) (get_col(mat, 0, vec), *(vec))
+#define alloc_vector(init_val, size) alloc_matrix(init_val, size, 1)
+#define alloc_temp_vector(init_val, size) alloc_temp_matrix(init_val, size, 1)
+#define cast_vec(vec_data, size) cast_mat(vec_data, size, 1, TRUE)
+#define cast_quat(quat_data) cast_mat(quat_data, 4, 1, TRUE)
+#define alloc_quad_mat(init_val, size) alloc_matrix(init_val, size, size)
+#define DEALLOCATE_MATRICES(...) deallocate_matrices(sizeof((Matrix[]){__VA_ARGS__}) / sizeof(Matrix), __VA_ARGS__)
+#define VEC(...) vec(sizeof((float[]) {__VA_ARGS__}) / sizeof(float), __VA_ARGS__)
+#define SUM_MATRICES(...) sum_matrices(sizeof((Matrix[]) {*__VA_ARGS__}) / sizeof(Matrix) - 1, __VA_ARGS__)
+#define DOT_PRODUCT_MATRIX(...) dot_product_matrix(sizeof((Matrix[]) {*__VA_ARGS__}) / sizeof(Matrix) - 1, __VA_ARGS__)
 
 typedef struct Matrix {
     unsigned int rows;
@@ -23,6 +30,7 @@ typedef struct Matrix {
 } Matrix;
 
 typedef Matrix Vector;
+typedef Matrix Quaternion;
 
 /* DECLARATIONS */
 
@@ -46,6 +54,8 @@ Matrix negate(Matrix a);
 void sum_matrices(int len, ...); 
 void dot_product_matrix(int len, ...); 
 void transpose_matrix(Matrix src, Matrix* dest); 
+Matrix cast_mat(float* mat_data, unsigned int rows, unsigned int cols, bool is_row_major);
+Matrix quat_to_mat4(Quaternion quat);
 
 /* ----------------------------------------------- */
 
@@ -223,7 +233,7 @@ void normalize_vector(Vector vec, Vector* normalized_vec) {
     copy_matrix(temp, normalized_vec);
 
     // Deallocate unused vector
-    deallocate_matrices(1, temp);
+    DEALLOCATE_MATRICES(temp);
 
     return;
 }
@@ -271,7 +281,7 @@ void scalar_sum_matrix(Matrix src, float scalar, Matrix* dest) {
     }
 
     copy_matrix(temp, dest);
-    deallocate_matrices(1, temp);
+    DEALLOCATE_MATRICES(temp);
 
     return;
 }
@@ -288,7 +298,7 @@ void scalar_product_matrix(Matrix src, float scalar, Matrix* dest) {
     }
 
     copy_matrix(temp, dest);
-    deallocate_matrices(1, temp);
+    DEALLOCATE_MATRICES(temp);
 
     return;
 }
@@ -331,7 +341,7 @@ void sum_matrices(int len, ...) {
     copy_matrix(temp, dest);
 
     // Deallocate the temp matrix
-    deallocate_matrices(1, temp);
+    DEALLOCATE_MATRICES(temp);
 
     return;
 }
@@ -412,6 +422,38 @@ void transpose_matrix(Matrix src, Matrix* dest) {
     }
 
     return;
+}
+
+Matrix cast_mat(float* mat_data, unsigned int rows, unsigned int cols, bool is_row_major) {
+    Matrix mat = alloc_matrix(0.0f, rows, cols);
+    for (unsigned int r = 0; r < rows; ++r) {
+        for (unsigned int c = 0; c < cols; ++c) {
+            if (is_row_major) mat.data[r * cols + c] = mat_data[r * cols + c];
+            else mat.data[r * cols + c] = mat_data[c * rows + r];
+        }
+    }
+    return mat;
+}
+
+Matrix quat_to_mat4(Quaternion quat) {
+    Matrix mat = create_identity_matrix(4);
+    
+    // First row
+    MAT_INDEX(mat, 0, 0) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 1), 2.0f)) - 1.0f;
+    MAT_INDEX(mat, 0, 1) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 2) - QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 3));
+    MAT_INDEX(mat, 0, 2) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 3) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 2));
+    
+    // Second row
+    MAT_INDEX(mat, 1, 0) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 2) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 3));
+    MAT_INDEX(mat, 1, 1) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 2), 2.0f)) - 1.0f;
+    MAT_INDEX(mat, 1, 2) = 2 * (QUAT_INDEX(quat, 2) * QUAT_INDEX(quat, 3) - QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 1));
+
+    // Third row
+    MAT_INDEX(mat, 2, 0) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 3) - QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 2));
+    MAT_INDEX(mat, 2, 1) = 2 * (QUAT_INDEX(quat, 2) * QUAT_INDEX(quat, 3) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 1));
+    MAT_INDEX(mat, 2, 2) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 3), 2.0f)) - 1.0f;
+    
+    return mat;
 }
 
 #endif // _MATRIX_H_

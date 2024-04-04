@@ -12,6 +12,7 @@
 
 #include "./utils.h"
 #include "./texture.h"
+#include "./transformation.h"
 #include "./camera.h"
 #include "../../libs/gltf_header.h"
 
@@ -37,7 +38,7 @@ typedef struct ModelMesh {
     Array textures;
     unsigned int* indices;
     unsigned int indices_count;
-    float transformation_matrix[16];
+    Matrix transformation_matrix;
 } ModelMesh;
 
 typedef struct Model {
@@ -154,7 +155,7 @@ void draw_model(unsigned int shader, Model* model, Camera* camera) {
     for (unsigned int i = 0; i < model -> meshes.count; ++i) {
         ModelMesh* mesh = GET_ELEMENT(ModelMesh*, model -> meshes, i);
         draw_mesh(shader, mesh, camera);
-        set_matrix(shader, "transform", mesh -> transformation_matrix, glUniformMatrix4fv);
+        set_matrix(shader, "transform", mesh -> transformation_matrix.data, glUniformMatrix4fv);
     }
     return;
 }
@@ -258,23 +259,33 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
     return model_mesh;
 }
 
-void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_arr) {
+void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_arr, Matrix parent_matrix) {
+    Matrix translation_mat = create_identity_matrix(4);
+    Matrix scale_mat = create_identity_matrix(4);
+
+    Vector translation_vec = cast_vec(node.translation_vec, 3);
+    Quaternion rotation_quat = cast_quat(node.rotation_quat);
+    Vector scale_vec = cast_vec(node.scale_vec, 3);
+    Matrix transformation_mat = cast_mat(node.transformation_matrix, 4, 4, FALSE);
+
+    translate_mat(translation_mat, translation_vec, &translation_mat);
+    Matrix rotation_mat = quat_to_mat4(rotation_quat);
+    scale_matrix(scale_mat, scale_vec, &scale_mat);
+
+    Matrix node_mat = alloc_quad_mat(0.0f, 4);
+    DOT_PRODUCT_MATRIX(&node_mat, parent_matrix, transformation_mat, translation_mat, rotation_mat, scale_mat);
+    DEALLOCATE_MATRICES(translation_mat, scale_mat, translation_vec, rotation_quat, scale_vec, transformation_mat, rotation_mat);
+    
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         Mesh mesh = scene.meshes[mesh_index];
         ModelMesh* model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
-        float max = 0.0f;
-        for (unsigned char t = 0; t < 16; ++t) {
-            if (max < absf(node.transformation_matrix[t])) max = absf(node.transformation_matrix[t]);
-        }
-        for (unsigned char t = 0; t < 16; ++t) {
-            model_mesh -> transformation_matrix[t] = node.transformation_matrix[t] / max;
-        }
+        model_mesh -> transformation_matrix = node_mat;
         append_element(meshes, model_mesh);
     }
 
     for (unsigned int i = 0; i < node.children_count; ++i) {
-        process_node(meshes, scene, node.childrens[i], loaded_textures_arr);
+        process_node(meshes, scene, node.childrens[i], loaded_textures_arr, node_mat);
     }
 
     return;
@@ -293,7 +304,9 @@ Model* load_model(char* path) {
 
     model -> directory = get_directory(path);
     model -> meshes = init_arr();
-    process_node(&(model -> meshes), scene, scene.root_node, &loaded_textures_arr);
+    Matrix id_mat = create_identity_matrix(4);
+    process_node(&(model -> meshes), scene, scene.root_node, &loaded_textures_arr, id_mat);
+    DEALLOCATE_MATRICES(id_mat);
 
     debug_info("model successfully loaded\n");
 

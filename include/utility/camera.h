@@ -20,9 +20,9 @@ Camera init_camera(Vector camera_pos, Vector camera_front, Vector camera_up, flo
 void update_camera_front(Camera camera, float* mouse_pos) {
     float yaw = mouse_pos[0];
     float pitch = mouse_pos[1];
-    Vector direction = vec(3, cosf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)), sinf(deg_to_rad(pitch)), sinf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)));
+    Vector direction = VEC(cosf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)), sinf(deg_to_rad(pitch)), sinf(deg_to_rad(yaw)) * cosf(deg_to_rad(pitch)));
     normalize_vector(direction, &(camera.camera_front));
-    deallocate_matrices(1, direction);
+    DEALLOCATE_MATRICES(direction);
     return;
 }
 
@@ -46,9 +46,9 @@ void update_camera_speed(Camera* camera, unsigned char reset) {
 Matrix look_at(Camera camera) {
     // Retrieve the Right, Direction and Up vectors
     Vector camera_target = alloc_vector(0.0f, 1);
-    sum_matrices(2, &camera_target, camera.camera_front, camera.camera_pos);
+    SUM_MATRICES(&camera_target, camera.camera_front, camera.camera_pos);
     Vector camera_direction = alloc_vector(0.0f, 1);
-    sum_matrices(2, &camera_direction, camera.camera_pos, negate(camera_target));
+    SUM_MATRICES(&camera_direction, camera.camera_pos, negate(camera_target));
     normalize_vector(camera_direction, &camera_direction);  
     Vector camera_right = cross_product(camera.camera_up, camera_direction);
     normalize_vector(camera_right, &camera_right);
@@ -71,15 +71,15 @@ Matrix look_at(Camera camera) {
     }
 
     Matrix look_at_mat = alloc_matrix(0.0f, 1, 1);
-    dot_product_matrix(2, &look_at_mat, dir_matrix, pos_matrix);
-    deallocate_matrices(4, dir_matrix, pos_matrix, camera_direction, camera_target);
+    DOT_PRODUCT_MATRIX(&look_at_mat, dir_matrix, pos_matrix);
+    DEALLOCATE_MATRICES(dir_matrix, pos_matrix, camera_direction, camera_target);
     gc_dispose();
 
     return look_at_mat;
 }
 
 void deallocate_camera(Camera camera) {
-    deallocate_matrices(3, camera.camera_pos, camera.camera_front, camera.camera_up); 
+    DEALLOCATE_MATRICES(camera.camera_pos, camera.camera_front, camera.camera_up); 
     return;
 }
 

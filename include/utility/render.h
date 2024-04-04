@@ -19,24 +19,24 @@ void set_frustum(unsigned int shader, Camera camera) {
     Matrix view = look_at(camera);
     Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
     Matrix camera_matrix = create_identity_matrix(4);
-    dot_product_matrix(2, &camera_matrix, projection, view);
+    DOT_PRODUCT_MATRIX(&camera_matrix, projection, view);
     set_matrix(shader, "camera_matrix", camera_matrix.data, glUniformMatrix4fv);
-    deallocate_matrices(3, view, projection, camera_matrix);   
+    DEALLOCATE_MATRICES(view, projection, camera_matrix);   
     return;
 }
 
 void render(GLFWwindow* window, unsigned int vertex_shader) {
     // Set the camera parameters
-    Vector camera_pos = vec(3, 0.0f, 0.0f,  3.0f);
-    Vector camera_front = vec(3, 0.0f, 0.0f, -1.0f);
-    Vector camera_up = vec(3, 0.0f, 1.0f,  0.0f);
+    Vector camera_pos = VEC(0.0f, 0.0f,  3.0f);
+    Vector camera_front = VEC(0.0f, 0.0f, -1.0f);
+    Vector camera_up = VEC(0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
     Model* object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
     if (object_model == NULL) return;
 
 	Vector light_color = alloc_vector(1.0f, 4);
     set_vec(vertex_shader, "light_color", light_color.data, glUniform4fv);
-    deallocate_matrices(1, light_color);
+    DEALLOCATE_MATRICES(light_color);
 
     glEnable(GL_DEPTH_TEST); // configure global opengl state
 
