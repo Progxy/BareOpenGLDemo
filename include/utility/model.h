@@ -39,6 +39,9 @@ typedef struct ModelMesh {
     unsigned int* indices;
     unsigned int indices_count;
     Matrix transformation_matrix;
+    Vector translation_mat;
+    Quaternion rotation_mat;
+    Vector scale_mat;
 } ModelMesh;
 
 typedef struct Model {
@@ -86,6 +89,7 @@ void deallocate_mesh(ModelMesh mesh) {
     free(mesh.vertices);
     deallocate_arr(mesh.textures);
     free(mesh.indices);
+    DEALLOCATE_MATRICES(mesh.transformation_matrix, mesh.translation_mat, mesh.rotation_mat, mesh.scale_mat);
     glDeleteVertexArrays(1, mesh.VAO);
     glDeleteBuffers(1, mesh.VBO);
     glDeleteBuffers(1, mesh.EBO);
@@ -156,6 +160,9 @@ void draw_model(unsigned int shader, Model* model, Camera* camera) {
         ModelMesh* mesh = GET_ELEMENT(ModelMesh*, model -> meshes, i);
         draw_mesh(shader, mesh, camera);
         set_matrix(shader, "transform", mesh -> transformation_matrix.data, glUniformMatrix4fv);
+        set_matrix(shader, "translation", mesh -> translation_mat.data, glUniformMatrix4fv);
+        set_matrix(shader, "rotation", mesh -> rotation_mat.data, glUniformMatrix4fv);
+        set_matrix(shader, "scale", mesh -> scale_mat.data, glUniformMatrix4fv);
     }
     return;
 }
@@ -263,9 +270,9 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
     Matrix translation_mat = create_identity_matrix(4);
     Matrix scale_mat = create_identity_matrix(4);
 
-    Vector translation_vec = cast_vec(node.translation_vec, 3);
+    Vector translation_vec = cast_vec(node.translation_vec, 3, FALSE);
     Quaternion rotation_quat = cast_quat(node.rotation_quat);
-    Vector scale_vec = cast_vec(node.scale_vec, 3);
+    Vector scale_vec = cast_vec(node.scale_vec, 3, FALSE);
     Matrix transformation_mat = cast_mat(node.transformation_matrix, 4, 4, FALSE);
 
     translate_mat(translation_mat, translation_vec, &translation_mat);
@@ -274,13 +281,16 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
 
     Matrix node_mat = alloc_quad_mat(0.0f, 4);
     DOT_PRODUCT_MATRIX(&node_mat, parent_matrix, transformation_mat, translation_mat, rotation_mat, scale_mat);
-    DEALLOCATE_MATRICES(translation_mat, scale_mat, translation_vec, rotation_quat, scale_vec, transformation_mat, rotation_mat);
+    DEALLOCATE_MATRICES(translation_vec, scale_vec, transformation_mat, rotation_quat);
     
     for (unsigned int i = 0; i < node.meshes_indices.count; ++i) {
         unsigned int mesh_index = *GET_ELEMENT(unsigned int*, node.meshes_indices, i);
         Mesh mesh = scene.meshes[mesh_index];
         ModelMesh* model_mesh = process_mesh(mesh, scene, loaded_textures_arr);
         model_mesh -> transformation_matrix = node_mat;
+        model_mesh -> translation_mat = translation_mat;
+        model_mesh -> rotation_mat = rotation_mat;
+        model_mesh -> scale_mat = scale_mat;
         append_element(meshes, model_mesh);
     }
 

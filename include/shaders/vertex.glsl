@@ -10,10 +10,13 @@ out vec2 tex_coords;
 out vec3 tangent;
 
 uniform mat4 transform;
+uniform mat4 translation;
+uniform mat4 rotation;
+uniform mat4 scale;
 uniform mat4 camera_matrix;
 
 void main() {
-	current_pos = vec3(transform * vec4(a_pos, 1.0f));
+	current_pos = vec3(transform  * translation * -rotation * scale * vec4(a_pos, 1.0f));
 	normal = a_normal;
 	tex_coords = a_tex_coords;
     tangent = a_tangent;

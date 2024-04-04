@@ -15,7 +15,7 @@
 #define VEC_SIZE(vec) ((vec.rows == 1) ? vec.cols : vec.rows)
 #define alloc_vector(init_val, size) alloc_matrix(init_val, size, 1)
 #define alloc_temp_vector(init_val, size) alloc_temp_matrix(init_val, size, 1)
-#define cast_vec(vec_data, size) cast_mat(vec_data, size, 1, TRUE)
+#define cast_vec(vec_data, size, is_row_major) cast_mat(vec_data, is_row_major ? size : 1, !is_row_major ? size : 1, is_row_major)
 #define cast_quat(quat_data) cast_mat(quat_data, 4, 1, TRUE)
 #define alloc_quad_mat(init_val, size) alloc_matrix(init_val, size, size)
 #define DEALLOCATE_MATRICES(...) deallocate_matrices(sizeof((Matrix[]){__VA_ARGS__}) / sizeof(Matrix), __VA_ARGS__)
