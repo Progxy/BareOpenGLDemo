@@ -12,6 +12,7 @@
 #define VEC_INDEX(vec, index) (((vec).data)[index])
 #define QUAT_INDEX(quat, index) (((quat).data)[index])
 #define IS_VEC(mat) (mat.rows == 1 || mat.cols == 1)
+#define IS_QUAT(mat) ((mat.rows == 1 && mat.cols == 4) || (mat.rows = 4 && mat.cols == 1))
 #define VEC_SIZE(vec) ((vec.rows == 1) ? vec.cols : vec.rows)
 #define alloc_vector(init_val, size) alloc_matrix(init_val, size, 1)
 #define alloc_temp_vector(init_val, size) alloc_temp_matrix(init_val, size, 1)
@@ -22,6 +23,7 @@
 #define VEC(...) vec(sizeof((float[]) {__VA_ARGS__}) / sizeof(float), __VA_ARGS__)
 #define SUM_MATRICES(...) sum_matrices(sizeof((Matrix[]) {*__VA_ARGS__}) / sizeof(Matrix) - 1, __VA_ARGS__)
 #define DOT_PRODUCT_MATRIX(...) dot_product_matrix(sizeof((Matrix[]) {*__VA_ARGS__}) / sizeof(Matrix) - 1, __VA_ARGS__)
+#define PRINT_MAT(mat) print_matrix(mat, #mat)
 
 typedef struct Matrix {
     unsigned int rows;
@@ -59,15 +61,15 @@ Matrix quat_to_mat4(Quaternion quat);
 
 /* ----------------------------------------------- */
 
-// NOTE: The matrices are row-majour order, while the vectors are column-majour order
+// NOTE: The matrices are row-major order, while the vectors are column-major order
 
 void print_matrix(Matrix mat, const char* mat_name) {
     printf("-------------------------------------\n");
-    printf("%s '%s': \n\n", IS_VEC(mat) ? "Vector" : "Matrix", mat_name);
+    printf("%s '%s': \n", IS_VEC(mat) ? IS_QUAT(mat) ? "Quaternion" : "Vector" : "Matrix", mat_name);
 
     for (unsigned int row = 0; row < mat.rows; ++row) {
         for (unsigned int col = 0; col < mat.cols; ++col) {
-            printf(" %f ", MAT_INDEX(mat, row, col));
+            printf(" %e ", MAT_INDEX(mat, row, col));
         }
         printf("\n");
     }
