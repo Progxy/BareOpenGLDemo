@@ -18,8 +18,12 @@
 void set_frustum(unsigned int shader, Camera camera) {
     Matrix view = look_at(camera);
     Matrix projection = perspective_matrix(get_scroll_position(), (float) WIDTH / (float) HEIGHT, 0.1f, 100.0f);
+    Matrix rotation_mat = create_identity_matrix(4);
+    rotation_x_matrix(-90.0f, 4, &rotation_mat);
+    Vector scale_vec = VEC(0.025f, 0.025f, 0.025f);
     Matrix camera_matrix = create_identity_matrix(4);
-    DOT_PRODUCT_MATRIX(&camera_matrix, projection, view);
+    DOT_PRODUCT_MATRIX(&camera_matrix, projection, view, rotation_mat);
+    scale_matrix(camera_matrix, scale_vec, &camera_matrix);
     set_matrix(shader, "camera_matrix", camera_matrix.data, glUniformMatrix4fv);
     DEALLOCATE_MATRICES(view, projection, camera_matrix);   
     return;
@@ -31,7 +35,7 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
     Vector camera_front = VEC(0.0f, 0.0f, -1.0f);
     Vector camera_up = VEC(0.0f, 1.0f,  0.0f);
     Camera camera = init_camera(camera_pos, camera_front, camera_up, 2.5f);
-    Model* object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/survival_guitar_backpack/");
+    Model* object_model = load_model("/home/Emanuele/Informatica/OpenGL/assets/grindstone/");
     if (object_model == NULL) return;
 
 	Vector light_color = alloc_vector(1.0f, 4);
