@@ -1,6 +1,9 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+
 char* read_file(const char* file_path) {
     FILE* file = fopen(file_path, "rb");
 
@@ -8,7 +11,7 @@ char* read_file(const char* file_path) {
     if (file == NULL) {
         printf("OPEN_FILE:ERROR: an error occured while opening the file, check if the file exists or if the given path is correct!\n");
         return NULL;
-    } 
+    }
 
     // Get the length of the file
     fseek(file, 0, SEEK_END);
@@ -30,7 +33,7 @@ char* read_file(const char* file_path) {
 
     // Clean the flags
     clearerr(file);
-    
+
     // Close file
     fclose(file);
 

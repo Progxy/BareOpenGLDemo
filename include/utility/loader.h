@@ -1,16 +1,7 @@
 #ifndef _LOADER_H_
 #define _LOADER_H_
 
-#ifndef _STDLIB_DEF_
-#define _STDLIB_DEF_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "./GLFW/glfw3.h"
-#include "./glad/glad.h"
-
-#endif //_STDLIB_DEF_
-
+#include "./parser.h"
 #include "./input.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -19,11 +10,11 @@ GLFWwindow* init_window(int width, int height, const char* title) {
     // Init GLFW
     glfwInit();
 
-    // Tell GLFW what version of OpenGL we are using 
+    // Tell GLFW what version of OpenGL we are using
 	// In this case we are using OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    
+
 	// Tell GLFW we are using the CORE profile
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -35,26 +26,26 @@ GLFWwindow* init_window(int width, int height, const char* title) {
         glfwTerminate();
         return NULL;
     }
-    
+
     // Set the context and the callback on resize
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+
     // Capture the mouse on window enter
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set cursor callback
     glfwSetCursorPosCallback(window, mouse_callback);
 
     // Set scroll callback
-    glfwSetScrollCallback(window, scroll_callback); 
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         printf("GLAD:LOADING_POINTERS:ERROR: Failed to initialize GLAD\n");
         return NULL;
     }
-    
+
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
@@ -67,11 +58,11 @@ unsigned int init_shaders(const char* path_vertex_shader, const char* path_fragm
     const char* vertex_shader_data;
     int status;
 
-    // Load shaders 
+    // Load shaders
     if ((vertex_shader_data = read_file(path_vertex_shader)) == NULL) {
         return INT32_MAX;
-    }    
-    
+    }
+
     if ((fragment_shader_data = read_file(path_fragment_shader)) == NULL) {
         return INT32_MAX;
     }
@@ -93,7 +84,7 @@ unsigned int init_shaders(const char* path_vertex_shader, const char* path_fragm
     unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment_shader, 1, &fragment_shader_data, NULL);
     glCompileShader(fragment_shader);
-    
+
     // Check for shader compile errors
     glGetProgramiv(fragment_shader, GL_LINK_STATUS, &status);
     if (!status) {
@@ -119,13 +110,13 @@ unsigned int init_shaders(const char* path_vertex_shader, const char* path_fragm
     // Deallocate the shaders
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
-    
+
     return vertex_shader_program;
 }
 
 // Whenever the window size changed (by OS or user resize) this callback function executes
-/// @param: window is not used 
-void framebuffer_size_callback(GLFWwindow* /*window*/, int width, int height) {
+/// @param: window is not used
+void framebuffer_size_callback(UNUSED GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
     return;
 }

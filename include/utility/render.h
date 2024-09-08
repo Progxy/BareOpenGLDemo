@@ -1,19 +1,10 @@
 #ifndef _RENDER_H_
 #define _RENDER_H_
 
-#ifndef _STDLIB_DEF_
-#define _STDLIB_DEF_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "./GLFW/glfw3.h"
-#include "./input.h"
-
-#endif //_STDLIB_DEF_
-
 #include "./transformation.h"
 #include "./camera.h"
 #include "./model.h"
+#include "./input.h"
 
 void set_frustum(unsigned int shader, Camera camera) {
     Matrix view = look_at(camera);
@@ -25,7 +16,7 @@ void set_frustum(unsigned int shader, Camera camera) {
     DOT_PRODUCT_MATRIX(&camera_matrix, projection, view, rotation_mat);
     scale_matrix(camera_matrix, scale_vec, &camera_matrix);
     set_matrix(shader, "camera_matrix", camera_matrix.data, glUniformMatrix4fv);
-    DEALLOCATE_MATRICES(view, projection, camera_matrix);   
+    DEALLOCATE_MATRICES(view, projection, camera_matrix);
     return;
 }
 
@@ -61,8 +52,8 @@ void render(GLFWwindow* window, unsigned int vertex_shader) {
 
         // Render the cubes
         draw_model(vertex_shader, object_model, &camera);
-        
-        // Swap buffers and poll IO events 
+
+        // Swap buffers and poll IO events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

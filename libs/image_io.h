@@ -1,22 +1,9 @@
 #ifndef _IMAGE_IO_H_
 #define _IMAGE_IO_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#ifndef _USE_IMAGE_LIBRARY_
-#include "./debug_print.h"
-#include "./types.h"
-#include "./decode_jpeg.h"
-#include "./decode_png.h"
-#include "./decode_ppm.h"
-#endif //_USE_IMAGE_LIBRARY_
-
 #ifdef _USE_IMAGE_LIBRARY_
 
-typedef enum ImageError {NO_ERROR, FILE_NOT_FOUND, INVALID_FILE_TYPE, FILE_ERROR, INVALID_MARKER_LENGTH, INVALID_QUANTIZATION_TABLE_NUM, INVALID_HUFFMAN_TABLE_NUM, INVALID_IMAGE_SIZE, EXCEEDED_LENGTH, UNSUPPORTED_JPEG_TYPE, INVALID_DEPTH_COLOR_COMBINATION, INVALID_CHUNK_LENGTH, INVALID_COMPRESSION_METHOD, INVALID_FILTER_METHOD, INVALID_INTERLACE_METHOD, INVALID_IEND_CHUNK_SIZE, DECODING_ERROR} ImageError; 
 typedef enum FileType {JPEG, PNG, PPM} FileType;
-typedef unsigned char bool;
 
 const char* err_codes[] = {"NO_ERROR", "FILE_NOT_FOUND", "INVALID_FILE_TYPE", "FILE_ERROR", "INVALID_MARKER_LENGTH", "INVALID_QUANTIZATION_TABLE_NUM", "INVALID_HUFFMAN_TABLE_NUM", "INVALID_IMAGE_SIZE", "EXCEEDED_LENGTH", "UNSUPPORTED_JPEG_TYPE", "INVALID_DEPTH_COLOR_COMBINATION", "INVALID_CHUNK_LENGTH", "INVALID_COMPRESSION_METHOD", "INVALID_FILTER_METHOD", "INVALID_INTERLACE_METHOD", "INVALID_IEND_CHUNK_SIZE", "DECODING_ERROR"};
 
@@ -25,6 +12,10 @@ typedef struct FileData {
     unsigned char* data;
     FileType file_type;
 } FileData;
+#endif //_USE_IMAGE_LIBRARY_
+
+typedef unsigned char bool;
+typedef enum ImageError {NO_ERROR, FILE_NOT_FOUND, INVALID_FILE_TYPE, FILE_ERROR, INVALID_MARKER_LENGTH, INVALID_QUANTIZATION_TABLE_NUM, INVALID_HUFFMAN_TABLE_NUM, INVALID_IMAGE_SIZE, EXCEEDED_LENGTH, UNSUPPORTED_JPEG_TYPE, INVALID_DEPTH_COLOR_COMBINATION, INVALID_CHUNK_LENGTH, INVALID_COMPRESSION_METHOD, INVALID_FILTER_METHOD, INVALID_INTERLACE_METHOD, INVALID_IEND_CHUNK_SIZE, DECODING_ERROR} ImageError;
 
 typedef struct Image {
     unsigned int width;
@@ -34,8 +25,6 @@ typedef struct Image {
     unsigned char components;
     ImageError error;
 } Image;
-
-#endif //_USE_IMAGE_LIBRARY_
 
 Image decode_image(const char* file_path);
 bool create_ppm_image(Image image, const char* filename);
@@ -117,7 +106,7 @@ static bool read_image_file(FileData* image_file, const char* filename) {
     }
 
     fclose(file);
-    
+
     if (!check_image_file(image_file)) {
         error_print("invalid type of file!\n");
         return INVALID_FILE_TYPE;

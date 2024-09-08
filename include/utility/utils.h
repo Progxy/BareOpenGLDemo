@@ -1,9 +1,12 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#define __USE_MISC 
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdarg.h>
+#include <string.h>
+#include "../glad/glad.h"
 #include "./types.h"
 
 #define TRUE 1
@@ -11,10 +14,12 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define SENSITIVITY 0.1f
+#define M_PI 3.14159265358979323846
 #define CLIP(val, min, max) ((val > max) ? max : (val < min ? min : val))
 #define GET_ELEMENT(type, arr, index) ((type) (((arr).data)[index]))
+#define UNUSED __attribute((unused))
 
-Array init_arr();
+Array init_arr(void);
 void append_element(Array* arr, void* element);
 void deallocate_arr(Array arr);
 
@@ -52,25 +57,29 @@ char* get_directory(char* path) {
 void set_int(unsigned int shader, const char* obj_name, int obj_data, void (*uniform_value)(GLint, GLint)) {
     glUseProgram(shader);
     unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_value)(object, obj_data);
+    (*uniform_value)(object, obj_data);
+    return;
 }
 
 void set_vec(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_vec)(GLint, GLsizei, const GLfloat*)) {
     glUseProgram(shader);
     unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_vec)(object, 1, obj_data);
+    (*uniform_vec)(object, 1, obj_data);
+    return;
 }
 
 void set_float(unsigned int shader, const char* obj_name, float obj_data, void (*uniform_value)(GLint, GLfloat)) {
     glUseProgram(shader);
     unsigned int object = glGetUniformLocation(shader, obj_name);
-    return (*uniform_value)(object, obj_data);
+    (*uniform_value)(object, obj_data);
+    return;
 }
 
 void set_matrix(unsigned int shader, const char* obj_name, float* obj_data, void (*uniform_mat)(GLint, GLsizei, GLboolean, const GLfloat*)) {
     glUseProgram(shader);
-    unsigned int object = glGetUniformLocation(shader, obj_name);   
-    return (*uniform_mat)(object, 1, GL_TRUE, obj_data);
+    unsigned int object = glGetUniformLocation(shader, obj_name);
+    (*uniform_mat)(object, 1, GL_TRUE, obj_data);
+    return;
 }
 
 float absf(float val) {
@@ -87,7 +96,7 @@ float rad_to_deg(float rad) {
 
 void print_float_bits(float* val) {
     unsigned char* val_uc = (unsigned char*) val;
-    for (int j = 0; j < 4; ++j) {    
+    for (int j = 0; j < 4; ++j) {
         for (int i = 0; i < 8; i++) {
             printf("%d", ((*(val_uc + j)) & (1 << i)) ? 1 : 0);
         }
@@ -100,18 +109,18 @@ void print_float_bits(float* val) {
 char* num_to_str(unsigned int val) {
     unsigned int digits = 0;
     long double copy_val = val;
-    
+
     while (copy_val >= 1.0L) {
         copy_val /= 10.0L;
         digits++;
     }
-    
+
     digits = (!digits) ? 1 : digits;
     char* str = (char*) calloc(digits, sizeof(char));
     if (!digits) {
         str[0] = '0';
     }
-    
+
     for (int i = digits - 1, ind = 0; i >= 0; --i, ++ind) {
         char digit = ((unsigned int) (val / powl(10, i)) % 10);
         str[ind] = digit + 48;

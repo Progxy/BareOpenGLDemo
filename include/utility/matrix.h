@@ -5,6 +5,7 @@
 #include <math.h>
 #include <assert.h>
 #include <stdarg.h>
+#include "./types.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -25,37 +26,28 @@
 #define DOT_PRODUCT_MATRIX(...) dot_product_matrix(sizeof((Matrix[]) {*__VA_ARGS__}) / sizeof(Matrix) - 1, __VA_ARGS__)
 #define PRINT_MAT(mat) print_matrix(mat, #mat)
 
-typedef struct Matrix {
-    unsigned int rows;
-    unsigned int cols;
-    float* data;
-} Matrix;
-
-typedef Matrix Vector;
-typedef Matrix Quaternion;
-
 /* DECLARATIONS */
 
 void print_matrix(Matrix mat, const char* mat_name);
-void reshape_matrix(unsigned int rows, unsigned int cols, Matrix* mat); 
-Matrix alloc_matrix(float init_val, unsigned int rows, unsigned int cols); 
-void gc_dispose();
+void reshape_matrix(unsigned int rows, unsigned int cols, Matrix* mat);
+Matrix alloc_matrix(float init_val, unsigned int rows, unsigned int cols);
+void gc_dispose(void);
 Matrix alloc_temp_matrix(float init_val, unsigned int rows, unsigned int cols);
 void deallocate_matrices(int len, ...);
-Matrix create_identity_matrix(unsigned int size); 
-Matrix get_col(Matrix mat, unsigned int col); 
-void copy_vector_to_matrix_col(Vector src, Matrix dest, unsigned int col); 
+Matrix create_identity_matrix(unsigned int size);
+Matrix get_col(Matrix mat, unsigned int col);
+void copy_vector_to_matrix_col(Vector src, Matrix dest, unsigned int col);
 float get_vector_length(Vector vec);
 void copy_matrix(Matrix src, Matrix* dest);
 void normalize_vector(Vector vec, Vector* normalized_vec);
 Vector cross_product(Vector a, Vector b);
-Vector vec(int len, ...); 
+Vector vec(int len, ...);
 void scalar_sum_matrix(Matrix src, float scalar, Matrix* dest);
 void scalar_product_matrix(Matrix src, float scalar, Matrix* dest);
 Matrix negate(Matrix a);
-void sum_matrices(int len, ...); 
-void dot_product_matrix(int len, ...); 
-void transpose_matrix(Matrix src, Matrix* dest); 
+void sum_matrices(int len, ...);
+void dot_product_matrix(int len, ...);
+void transpose_matrix(Matrix src, Matrix* dest);
 Matrix cast_mat(float* mat_data, unsigned int rows, unsigned int cols, bool is_row_major);
 Matrix quat_to_mat4(Quaternion quat);
 
@@ -95,7 +87,7 @@ Matrix alloc_matrix(float init_val, unsigned int rows, unsigned int cols) {
     assert(rows >= 1 && cols >= 1);
 
     // Allocate the memory for the matrix
-    Matrix mat = {};
+    Matrix mat = {0};
     mat.rows = rows;
     mat.cols = cols;
     mat.data = calloc(rows * cols, sizeof(float));
@@ -110,7 +102,7 @@ Matrix alloc_matrix(float init_val, unsigned int rows, unsigned int cols) {
     return mat;
 }
 
-void gc_dispose() {
+void gc_dispose(void) {
     Matrix mat = alloc_temp_matrix(0.0f, 0, 0);
     (void) mat;
     return;
@@ -118,12 +110,12 @@ void gc_dispose() {
 
 Matrix alloc_temp_matrix(float init_val, unsigned int rows, unsigned int cols) {
     static float** gc_pointer;
-    static unsigned int count = 0; 
+    static unsigned int count = 0;
 
     if (rows == 0 && cols == 0) {
         free(gc_pointer);
         count = 0;
-        return (Matrix) {};
+        return (Matrix) {0};
     }
 
     if (count == 0) {
@@ -193,8 +185,8 @@ void copy_vector_to_matrix_col(Vector src, Matrix dest, unsigned int col) {
 float get_vector_length(Vector vec) {
     // Check that vec is a vector
     assert(IS_VEC(vec));
-    
-    // Init the sum 
+
+    // Init the sum
     float sum = 0.0f;
 
     unsigned int vec_size = VEC_SIZE(vec);
@@ -221,7 +213,7 @@ void copy_matrix(Matrix src, Matrix* dest) {
 void normalize_vector(Vector vec, Vector* normalized_vec) {
     // Check if vec is a vector
     assert(IS_VEC(vec));
-    
+
     unsigned int vec_size = VEC_SIZE(vec);
     Vector temp = alloc_vector(0.0f, vec_size);
 
@@ -243,7 +235,7 @@ void normalize_vector(Vector vec, Vector* normalized_vec) {
 Vector cross_product(Vector a, Vector b) {
     // Check if the given vectors have more than one component
     assert(IS_VEC(a) && IS_VEC(b) && (a.rows == b.rows) && (a.rows == 3));
-    
+
     Matrix result = alloc_temp_vector(0.0f, a.rows);
 
     VEC_INDEX(result, 0) = VEC_INDEX(a, 1) * VEC_INDEX(b, 2) - VEC_INDEX(a, 2) * VEC_INDEX(b, 1);
@@ -262,10 +254,10 @@ Vector vec(int len, ...) {
     Vector vec = alloc_vector(0.0f, len);
 
     // Set each row
-    for (int i = 0; i < len; ++i) {   
+    for (int i = 0; i < len; ++i) {
         VEC_INDEX(vec, i) = (float) va_arg(args, double);
     }
-    
+
     va_end(args);
 
     return vec;
@@ -323,13 +315,13 @@ void sum_matrices(int len, ...) {
     Matrix temp = alloc_matrix(0.0f, a.rows, a.cols);
 
     // Sum each matrix and store the result inside the destination matrix
-    for (int i = 0; i < len; ++i) {   
+    for (int i = 0; i < len; ++i) {
         Matrix b = (i == 0) ? a : va_arg(args, Matrix);
 
         // Assert that the matrices have the same shape
         assert(b.rows == temp.rows && b.cols == temp.cols);
 
-        // Sum the matrices and store the result inside the result matrix  
+        // Sum the matrices and store the result inside the result matrix
         for (unsigned int row = 0; row < a.rows; ++row) {
             for (unsigned int col = 0; col < a.cols; ++col) {
                 MAT_INDEX(temp, row, col) += MAT_INDEX(b, row, col);
@@ -371,12 +363,12 @@ void dot_product_matrix(int len, ...) {
     }
 
     // Multiply each matrix and store the result inside the destination matrix
-    for (int i = 0; i < len - 1; ++i) {   
+    for (int i = 0; i < len - 1; ++i) {
         Matrix b = va_arg(args, Matrix);
 
         // Assert that the matrices can be multiplied (temp x b)
         assert(temp_cols == b.rows);
-    
+
         // Multiply the two matrices and store the result inside the result matrix
         for (unsigned int row = 0; row < temp_rows; ++row) {
             // Init the row array that will hold the resulting row for each multiplication
@@ -392,11 +384,11 @@ void dot_product_matrix(int len, ...) {
             // Copy the new row into the old one
             temp[row] = new_row;
         }
-        
+
         // Set the new number of temp cols
         temp_cols = b.cols;
     }
-    
+
     va_end(args);
 
     // Copy the temp matrix into the destination matrix
@@ -439,12 +431,12 @@ Matrix cast_mat(float* mat_data, unsigned int rows, unsigned int cols, bool is_r
 
 Matrix quat_to_mat4(Quaternion quat) {
     Matrix mat = create_identity_matrix(4);
-    
+
     // First row
     MAT_INDEX(mat, 0, 0) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 1), 2.0f)) - 1.0f;
     MAT_INDEX(mat, 0, 1) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 2) - QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 3));
     MAT_INDEX(mat, 0, 2) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 3) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 2));
-    
+
     // Second row
     MAT_INDEX(mat, 1, 0) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 2) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 3));
     MAT_INDEX(mat, 1, 1) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 2), 2.0f)) - 1.0f;
@@ -454,7 +446,7 @@ Matrix quat_to_mat4(Quaternion quat) {
     MAT_INDEX(mat, 2, 0) = 2 * (QUAT_INDEX(quat, 1) * QUAT_INDEX(quat, 3) - QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 2));
     MAT_INDEX(mat, 2, 1) = 2 * (QUAT_INDEX(quat, 2) * QUAT_INDEX(quat, 3) + QUAT_INDEX(quat, 0) * QUAT_INDEX(quat, 1));
     MAT_INDEX(mat, 2, 2) = 2 * (powf(QUAT_INDEX(quat, 0), 2.0f) + powf(QUAT_INDEX(quat, 3), 2.0f)) - 1.0f;
-    
+
     return mat;
 }
 

@@ -1,15 +1,6 @@
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 
-#ifndef _STDLIB_DEF_
-#define _STDLIB_DEF_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "./GLFW/glfw3.h"
-
-#endif //_STDLIB_DEF_
-
 #define _USE_IMAGE_LIBRARY_
 #include "../../libs/image_io.h"
 #include "./types.h"
@@ -31,7 +22,7 @@ void load_texture(const char* file_path, unsigned int* texture_id, TextureParams
         return;
     }
 
-    GLenum format;
+    GLenum format = 0;
     if (image.components == 1) format = GL_RED;
     else if (image.components == 3) format = GL_RGB;
     else if (image.components == 4) format = GL_RGBA;
@@ -47,7 +38,7 @@ void load_texture(const char* file_path, unsigned int* texture_id, TextureParams
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, values_filter[texture_params.mag_filter]);
 
     deallocate_image(image);
-    
+
     debug_info("texture successfully loaded\n");
 
     return;

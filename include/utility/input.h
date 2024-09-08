@@ -1,20 +1,15 @@
 #ifndef _INPUT_H_
 #define _INPUT_H_
 
-#ifndef _STDLIB_DEF_
-#define _STDLIB_DEF_
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "./GLFW/glfw3.h"
-#endif //_STDLIB_DEF_
-
-#include "./utils.h"
 #include "./matrix.h"
 #include "./camera.h"
+#include "./GLFW/glfw3.h"
+#include "utils.h"
 
 #define get_mouse_position() refresh_mouse_position(0.0f, 0.0f, TRUE)
-#define get_scroll_position() refresh_scroll_position(0.0f, TRUE)   
+#define get_scroll_position() refresh_scroll_position(0.0f, TRUE)
 #define reset_angles(yaw, pitch) refresh_mouse_position(yaw, pitch, TRUE)
 #define GET_PRESSED_KEY(window, key) (glfwGetKey(window, key) == GLFW_PRESS)
 
@@ -93,9 +88,9 @@ float* refresh_mouse_position(float x_offset, float y_offset, unsigned char ret)
     return NULL;
 }
 
-void mouse_callback(GLFWwindow* /*window*/, double x_pos, double y_pos) {
-    static float last_x = WIDTH / 2;
-    static float last_y = HEIGHT / 2;
+void mouse_callback(UNUSED GLFWwindow* window, double x_pos, double y_pos) {
+    static float last_x = WIDTH / 2.0f;
+    static float last_y = HEIGHT / 2.0f;
 
     refresh_mouse_position(SENSITIVITY * (x_pos - last_x), SENSITIVITY * (last_y - y_pos), FALSE); // reversed since y-coordinates range from bottom to top
     last_x = x_pos;
@@ -118,7 +113,7 @@ float refresh_scroll_position(float offset, unsigned char ret) {
     return 0.0f;
 }
 
-void scroll_callback(GLFWwindow* /*window*/, double /*x_offset*/, double y_offset) {
+void scroll_callback(UNUSED GLFWwindow* window, UNUSED double x_offset, double y_offset) {
     refresh_scroll_position(y_offset, FALSE);
     return;
 }

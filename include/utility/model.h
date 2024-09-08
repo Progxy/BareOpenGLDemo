@@ -1,19 +1,10 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
-#ifndef _STDLIB_DEF_
-#define _STDLIB_DEF_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "./GLFW/glfw3.h"
-
-#endif //_STDLIB_DEF_
-
+#include <stddef.h>
 #include "./utils.h"
 #include "./texture.h"
-#include "./transformation.h"
-#include "./camera.h"
+#include "./matrix.h"
 #include "../../libs/gltf_header.h"
 
 typedef struct Vertex {
@@ -27,7 +18,7 @@ typedef struct ModelTexture {
     unsigned int id;
     char* type;
     char* path;
-} ModelTexture;  
+} ModelTexture;
 
 typedef struct ModelMesh {
     unsigned int* VAO;
@@ -47,7 +38,7 @@ typedef struct ModelMesh {
 typedef struct Model {
     Array meshes;
     char* directory;
-} Model;    
+} Model;
 
 void setup_mesh(ModelMesh* mesh) {
     glGenVertexArrays(1, mesh -> VAO);
@@ -57,21 +48,21 @@ void setup_mesh(ModelMesh* mesh) {
     glBindVertexArray(*(mesh -> VAO));
 
     glBindBuffer(GL_ARRAY_BUFFER, *(mesh -> VBO));
-    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices_count) * sizeof(Vertex), (mesh -> vertices) -> position, GL_STATIC_DRAW);  
+    glBufferData(GL_ARRAY_BUFFER, (mesh -> vertices_count) * sizeof(Vertex), (mesh -> vertices) -> position, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *(mesh -> EBO));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, (mesh -> indices_count) * sizeof(unsigned int), mesh -> indices, GL_STATIC_DRAW);
 
     // vertex positions
-    glEnableVertexAttribArray(0);	
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
 
     // vertex normals
-    glEnableVertexAttribArray(1);	
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
-    
+
     // vertex texture coords
-    glEnableVertexAttribArray(2);	
+    glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tex_coords));
 
     // vertex tangent
@@ -141,7 +132,7 @@ void draw_mesh(unsigned int shader, ModelMesh* mesh, Camera* camera) {
         glBindTexture(GL_TEXTURE_2D, GET_ELEMENT(ModelTexture*, mesh -> textures, i) -> id);
         free(material_id);
     }
-    
+
     set_vec(shader, "cam_pos", camera -> camera_pos.data, glUniform3fv);
 
     // draw mesh
@@ -169,7 +160,7 @@ static float* get_element_as_float(ArrayExtended arr_ext, unsigned int index) {
 
     unsigned char size = elements_count[arr_ext.data_type];
     void* data = GET_ELEMENT(void*, arr_ext.arr, index);
-    
+
     if ((arr_ext.component_type == BYTE) || (arr_ext.component_type == UNSIGNED_BYTE) || (arr_ext.component_type == SHORT) || (arr_ext.component_type == UNSIGNED_SHORT) || (arr_ext.component_type == UNSIGNED_INT)) {
         float* element = (float*) calloc(size, sizeof(float));
         for (unsigned int i = 0; i < size; ++i) {
@@ -181,7 +172,7 @@ static float* get_element_as_float(ArrayExtended arr_ext, unsigned int index) {
         }
         return element;
     }
-    
+
     return ((float*) data);
 }
 
@@ -194,8 +185,8 @@ ModelTexture* process_texture(Texture texture, char* type, Array* loaded_texture
             return model_texture;
         }
     }
-    TextureParams texture_params = (TextureParams) { 
-        .wrap_s = normalize_wrap_values[texture.wrap_s], 
+    TextureParams texture_params = (TextureParams) {
+        .wrap_s = normalize_wrap_values[texture.wrap_s],
         .wrap_t = normalize_wrap_values[texture.wrap_t],
         .min_filter = normalize_filter_values[texture.min_filter],
         .mag_filter = normalize_filter_values[texture.mag_filter]
@@ -217,7 +208,7 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
 
     for (unsigned int i = 0; i < mesh.vertices.arr.count; ++i, ++(model_mesh -> vertices_count)) {
         model_mesh -> vertices = (Vertex*) realloc(model_mesh -> vertices, sizeof(Vertex) * (model_mesh -> vertices_count + 1));
-        
+
         float* position = get_element_as_float(mesh.vertices, i);
         for (unsigned int j = 0; j < elements_count[mesh.vertices.data_type]; ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).position[j] = position[j];
@@ -226,13 +217,13 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
         float* normal = get_element_as_float(mesh.normals, i);
         for (unsigned int j = 0; j < elements_count[mesh.normals.data_type]; ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).normal[j] = normal[j];
-        }        
-        
+        }
+
         float* tangent = get_element_as_float(mesh.tangents, i);
         for (unsigned int j = 0; j < elements_count[mesh.tangents.data_type]; ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).tangent[j] = tangent[j];
         }
-        
+
         float* tex_coords = get_element_as_float(mesh.texture_coords, i);
         for (unsigned int j = 0; j < elements_count[mesh.texture_coords.data_type] && (tex_coords != NULL); ++j) {
             ((model_mesh -> vertices)[model_mesh -> vertices_count]).tex_coords[j] = tex_coords[j];
@@ -249,9 +240,9 @@ ModelMesh* process_mesh(Mesh mesh, Scene scene, Array* loaded_textures_arr) {
 
     Material material = scene.materials[mesh.material_index];
     if (material.pbr_metallic_roughness.base_color_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.pbr_metallic_roughness.base_color_texture, "base_color_texture", loaded_textures_arr));
-    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", loaded_textures_arr));    
-    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));    
-    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));    
+    if (material.pbr_metallic_roughness.metallic_roughness_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.pbr_metallic_roughness.metallic_roughness_texture, "metallic_roughness_texture", loaded_textures_arr));
+    if (material.normal_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.normal_texture.texture, "normal_texture", loaded_textures_arr));
+    if (material.occlusion_texture.texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.occlusion_texture.texture, "occlusion_texture", loaded_textures_arr));
     if (material.emissive_texture.texture_path != NULL) append_element(&(model_mesh -> textures), process_texture(material.emissive_texture, "emissive_texture", loaded_textures_arr));
 
     model_mesh -> VAO = (unsigned int*) calloc(1, sizeof(unsigned int));
@@ -284,11 +275,11 @@ void process_node(Array* meshes, Scene scene, Node node, Array* loaded_textures_
 
 Model* load_model(char* path) {
     Scene scene = decode_gltf(path);
-    
+
     if (scene.meshes == NULL) {
         error_info("error while decoding the model.\n");
         return NULL;
-    } 
+    }
 
     Model* model = (Model*) calloc(1, sizeof(Model));
     Array loaded_textures_arr = init_arr();

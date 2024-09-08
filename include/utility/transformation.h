@@ -1,7 +1,6 @@
 #ifndef _TRANSFORMATION_H_
 #define _TRANSFORMATION_H_
 
-#include <stdlib.h>
 #include "./matrix.h"
 #include "./utils.h"
 
@@ -56,7 +55,7 @@ void rotation_y_matrix(float angle, int size, Matrix* dest) {
     DEALLOCATE_MATRICES(rotation_y_mat);
 
     return;
-} 
+}
 
 void rotation_z_matrix(float angle, int size, Matrix* dest) {
     Matrix rotation_z_mat = create_identity_matrix(size);
@@ -80,15 +79,15 @@ void rotation_z_matrix(float angle, int size, Matrix* dest) {
 Matrix perspective_matrix(float fov, float aspect, float near, float far) {
     assert(aspect != 0.0f);
     assert(far != near);
-    
+
     Matrix perspective_mat = alloc_matrix(0.0f, 4, 4);
-    
+
     // Calculate the tangent of half the vertical field of view and other parameters
     float tanHalfFov = tanf(deg_to_rad(fov) / 2.0f);
     float zRange = far - near;
-    
+
     // Calculate the values for the projection matrix
-    MAT_INDEX(perspective_mat, 0, 0) =  (1.0f) / (aspect * tanHalfFov); 
+    MAT_INDEX(perspective_mat, 0, 0) =  (1.0f) / (aspect * tanHalfFov);
     MAT_INDEX(perspective_mat, 1, 1) = (1.0f) / (tanHalfFov);
     MAT_INDEX(perspective_mat, 2, 2) = -(far + near) / zRange;
     MAT_INDEX(perspective_mat, 2, 3) = ((-2.0f) * far * near) / zRange;
@@ -122,13 +121,13 @@ void rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
     MAT_INDEX(rotate, 0, 2) = 0 + VEC_INDEX(temp, 2) * VEC_INDEX(axis, 0) + s * VEC_INDEX(axis, 1);
     MAT_INDEX(rotate, 1, 2) = 0 + VEC_INDEX(temp, 2) * VEC_INDEX(axis, 1) - s * VEC_INDEX(axis, 0);
     MAT_INDEX(rotate, 2, 2) = c + VEC_INDEX(temp, 2) * VEC_INDEX(axis, 2);
-    
+
     // Deallocate unused matrices
     DEALLOCATE_MATRICES(axis, temp);
 
 
     Matrix result = alloc_matrix(0.0f, 4, 4);
-    Vector mats[3] = {};
+    Vector mats[3] = {0};
 
     for (unsigned int i = 0; i < 3; ++i) {
         mats[i] = get_col(src, i);
@@ -144,7 +143,7 @@ void rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
     scalar_product_matrix(mats[2], MAT_INDEX(rotate, 2, 0), &mat2);
     SUM_MATRICES(&mat0, mat0, mat1, mat2);
     copy_vector_to_matrix_col(mat0, result, 0);
-    
+
     // result[1] = mat0 * MAT_INDEX(*rotate, 0, 1) + mat1 * MAT_INDEX(*rotate, 1, 1) + mat2 * MAT_INDEX(*rotate, 2, 1);
     scalar_product_matrix(mats[0], MAT_INDEX(rotate, 0, 1), &mat0);
     scalar_product_matrix(mats[1], MAT_INDEX(rotate, 1, 1), &mat1);
@@ -162,7 +161,7 @@ void rotate_matrix(Matrix src, float angle, Vector vec, Matrix* dest) {
 
     // result[3] = get_col(mat, 3);
     copy_vector_to_matrix_col(get_col(src, 3), result, 3);
-    
+
     // Deallocate all the unused resources
     DEALLOCATE_MATRICES(mat0, rotate);
     gc_dispose();

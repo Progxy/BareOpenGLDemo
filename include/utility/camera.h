@@ -1,16 +1,10 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include <stdlib.h>
 #include "./matrix.h"
 #include "./utils.h"
-
-typedef struct Camera {
-    Vector camera_pos;
-    Vector camera_front;
-    Vector camera_up;
-    float camera_speed;
-} Camera;
+#include "./types.h"
+#include "./GLFW/glfw3.h"
 
 Camera init_camera(Vector camera_pos, Vector camera_front, Vector camera_up, float camera_speed) {
     Camera camera = {.camera_pos = camera_pos, .camera_front = camera_front, .camera_up = camera_up, .camera_speed = camera_speed};
@@ -36,7 +30,7 @@ void update_camera_speed(Camera* camera, unsigned char reset) {
     }
 
     float current_frame = glfwGetTime();
-    camera -> camera_speed /= delta_time; 
+    camera -> camera_speed /= delta_time;
     delta_time = current_frame - last_frame;
     camera -> camera_speed *= delta_time;
     last_frame = current_frame;
@@ -49,7 +43,7 @@ Matrix look_at(Camera camera) {
     SUM_MATRICES(&camera_target, camera.camera_front, camera.camera_pos);
     Vector camera_direction = alloc_vector(0.0f, 1);
     SUM_MATRICES(&camera_direction, camera.camera_pos, negate(camera_target));
-    normalize_vector(camera_direction, &camera_direction);  
+    normalize_vector(camera_direction, &camera_direction);
     Vector camera_right = cross_product(camera.camera_up, camera_direction);
     normalize_vector(camera_right, &camera_right);
     Vector camera_up = cross_product(camera_direction, camera_right);
@@ -79,7 +73,7 @@ Matrix look_at(Camera camera) {
 }
 
 void deallocate_camera(Camera camera) {
-    DEALLOCATE_MATRICES(camera.camera_pos, camera.camera_front, camera.camera_up); 
+    DEALLOCATE_MATRICES(camera.camera_pos, camera.camera_front, camera.camera_up);
     return;
 }
 

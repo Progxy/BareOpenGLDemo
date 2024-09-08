@@ -75,12 +75,12 @@ typedef struct PbrMetallicRoughness {
     float roughness_factor;
 } PbrMetallicRoughness;
 
-typedef struct NormalTextureInfo { 
+typedef struct NormalTextureInfo {
     Texture texture;
     unsigned int scale;
 } NormalTextureInfo;
 
-typedef struct OcclusionTextureInfo { 
+typedef struct OcclusionTextureInfo {
     Texture texture;
     unsigned int strength;
 } OcclusionTextureInfo;
